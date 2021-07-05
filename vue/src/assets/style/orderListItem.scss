@@ -1,0 +1,47 @@
+@import '../../assets/scss/variables.scss';
+@import '../../assets/scss/mixins.scss';
+/*订单列表相关变量*/
+$list-item-margin-top: 0.2rem; /*每一个条目之间的边距*/
+$list-item-padding: 0.5rem 0.6rem; /*每一条条目的padding*/
+
+$list-order-num-font-size: 0.44rem;/*条目订单号的字号*/
+$list-order-num-line-height: 0.62rem;/*条目订单号的行高*/
+$list-order-num-margin-bottom: 0.3rem;/*条目订单号的下边距*/
+
+$list-info-font-size: 0.34rem;/*描述文字的字号*/
+$list-info-line-height: 0.48rem;/*描述文字的行高*/
+$list-info-margin-top: 0.15rem;/*两行描述文字之间的垂直距离*/
+
+$title-info-title-width: 2.8rem; /*每行描述文字标题宽度*/
+$title-info-title-margin-right: 0.1rem; /*每行描述文字标题右边距*/
+
+.list-box{
+  .item{
+    .item-inner{
+      .order_num{
+        margin-bottom: $list-order-num-margin-bottom;
+        @include flc($list-order-num-font-size, $list-order-num-line-height, $font-color);
+        .icon{
+          margin:0 0.19rem;
+          color: #1fda27;
+          font-size: 0.42rem;
+          opacity: 0.5;
+        }
+      }
+      .list_info{
+        @include flc($list-info-font-size,$list-info-line-height,$font-color);
+        opacity: 0.5;
+        & + .list_info{
+          margin-top: $list-info-margin-top;
+        }
+      }
+      .order_num, .list_info{
+        span{
+          display: inline-block;
+          width: $title-info-title-width;
+          margin-right: $title-info-title-margin-right;
+        }
+      }
+    }
+  }
+}

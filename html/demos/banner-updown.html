@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>淘宝幻灯片上下滑动效果 —— www.miaov.com —— 妙味课堂</title>
+    <style type="text/css">
+        /* http://www.miaov.com/ - coding: leo - QQ: 20907961 - time: 2010/8/19 */
+
+        * { padding: 0; margin: 0; }
+        li { list-style: none; }
+        img { border: none; }
+
+        body { background: #ecfaff; }
+
+        .play { width: 470px; height: 150px; overflow: hidden; position: relative; margin: 150px auto 0; }
+        ol { position: absolute; right: 5px; bottom: 5px; z-index: 2; }
+        ol li { float: left; margin-right: 3px; display: inline; cursor: pointer; background: #fcf2cf; border: 1px solid #f47500; padding: 2px 6px; color: #d94b01; font-family: arial; font-size: 12px; }
+        .active { padding: 3px 8px; font-weight: bold; color: #ffffff; background: #ffb442; position: relative; bottom: 2px; }
+
+        ul { position: absolute; top: 0; left: 0; z-index: 1; }
+        ul li { width: 470px; height: 150px; float: left; }
+        ul img { float: left; width: 470px; height: 150px; }
+
+
+    </style>
+    <script type="text/javascript">function createPPT(id)
+    {
+        var oDiv=document.getElementById(id);
+
+        if(!oDiv)
+        {
+            return;
+        }
+        var oOl=oDiv.getElementsByTagName('ol')[0];
+        var oUl=oDiv.getElementsByTagName('ul')[0];
+        var aBtn=oOl.getElementsByTagName('li');
+        var aLi=oUl.getElementsByTagName('li');
+        var iNow=0;
+        var oTimer=null;
+
+        oUl.oTimer=null;
+
+        var i=0;
+
+        function gotoImg(index)
+        {
+            for(i=0;i<aBtn.length;i++)
+            {
+                aBtn[i].className='';
+            }
+
+            aBtn[index].className='active';
+            startMove(oUl, -oDiv.offsetHeight*index);
+
+            iNow=index;
+        }
+
+        for(i=0;i<aBtn.length;i++)
+        {
+            aBtn[i].miaovIndex=i;
+            aBtn[i].onmouseover=function ()
+            {
+                gotoImg(this.miaovIndex);
+            };
+        }
+
+        for(i=0;i<aLi.length;i++)
+        {
+            aLi[i].onmouseover=function ()
+            {
+                clearInterval(oTimer);
+            };
+
+            aLi[i].onmouseout=function ()
+            {
+                oTimer=setInterval
+                (
+                    function ()
+                    {
+                        gotoImg((iNow+1)%aBtn.length);
+                    }, 3000
+                );
+            };
+        }
+
+        oTimer=setInterval
+        (
+            function ()
+            {
+                gotoImg((iNow+1)%aBtn.length);
+            }, 3000
+        );
+    };
+
+    function startMove(oUl, iTarget)
+    {
+        if(oUl.oTimer)
+        {
+            clearInterval(oUl.oTimer);
+        }
+
+        oUl.oTimer=setInterval
+        (
+            function ()
+            {
+                doMove(oUl, iTarget);
+            }, 30
+        );
+    }
+
+    function doMove(oUl, iTarget)
+    {
+        if(Math.abs(oUl.offsetTop-iTarget)<9)
+        {
+            clearInterval(oUl.oTimer);
+            oUl.oTimer=null;
+
+            oUl.style.top=iTarget+'px';
+        }
+        else
+        {
+            if(oUl.offsetTop<iTarget)
+            {
+                iSpeed=9;
+            }
+            else
+            {
+                iSpeed=-9;
+            }
+            oUl.style.top=oUl.offsetTop+iSpeed+'px';
+        }
+    }
+
+    window.attachEvent
+    (
+        'onload',
+        function ()
+        {
+            createPPT('play');
+        }
+    );</script>
+</head>
+
+<body>
+
+<div class="play" id="play">
+    <ol>
+        <li class="active">1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+    </ol>
+    <ul>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告一" /></a></li>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告二" /></a></li>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告三" /></a></li>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告四" /></a></li>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告五" /></a></li>
+    </ul>
+</div>
+<script type="text/javascript">
+    createPPT('play');
+</script>
+</body>
+</html>

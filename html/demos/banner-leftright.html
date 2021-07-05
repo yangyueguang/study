@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>幻灯片左右滑动效果 —— www.miaov.com —— 妙味课堂</title>
+    <style type="text/css">
+        /* http://www.miaov.com/ - coding: leo - QQ: 20907961 - time: 2010/8/28 */
+
+        * { padding: 0; margin: 0; }
+        li { list-style: none; }
+        img { border: none; }
+
+        body { background: #ecfaff; }
+
+        .box { width: 470px; height: 150px; position: relative; margin: 150px auto 0; background: #ccc; overflow:hidden;}
+        .box ol { position: absolute; left: 200px; bottom: 5px; z-index: 2; }
+        .box ol li { float: left; margin-right: 3px; display: inline; cursor: pointer; background: #fcf2cf; border: 1px solid #f47500; padding: 2px 6px; color: #d94b01; font-family: arial; font-size: 12px; }
+        .box .active { padding: 3px 8px; font-weight: bold; color: #ffffff; background: #ffb442; position: relative; bottom: 2px; }
+
+        .box ul { position: absolute; top: 0; left: 0; z-index: 1; }
+        .box ul li { width: 470px; height: 150px; float: left; }
+        .box ul img { float: left; width: 470px; height: 150px; }
+
+        .box p { width: 20px; height: 20px; line-height: 20px; font-family: arial; color: #fff; text-align: center; font-weight: bold; background: #333; border: 1px solid #ccc; position: absolute; top: 60px; z-index: 2; cursor: pointer; }
+        .box .prev { left: 10px; }
+        .box .next { right: 10px; }
+    </style>
+    <script type="text/javascript" >
+        /* http://www.miaov.com/ - coding: leo - QQ: 20907961 - time: 2010/8/28 */
+
+        var timer      = null;
+        var autoTime   = null;
+        var ms         = 100;
+        var autoMs     = 1000;
+        var iTarget    = 0;
+        var speed      = 0;
+        var nextTarget = 0;
+
+        window.onload  = function()
+        {
+            var obj    = document.getElementById("play");
+            var oOl    = obj.getElementsByTagName("ol")[0];
+            var aLis   = oOl.getElementsByTagName("li");
+            var oUl    = obj.getElementsByTagName("ul")[0];
+            var oUlLis = oUl.getElementsByTagName("li");
+            var oPrev  = obj.getElementsByTagName("p")[0];
+            var oNext  = obj.getElementsByTagName("p")[1];
+
+            oUl.style.width = oUlLis.length * oUlLis[0].offsetWidth + "px";
+
+            for( var i = 0; i < aLis.length; i+=1 )
+            {
+                aLis[i].onmouseover = getIndx;
+            }
+
+            obj.onmouseover = function()
+            {
+                clearInterval(currentTime);
+            }
+            obj.onmouseout = function()
+            {
+                if(currentTime)
+                {
+                    clearInterval(currentTime);
+                }
+                currentTime = setInterval("autoPlay()",autoMs);
+            }
+
+            oPrev.onmousedown = fnPrev;
+            oNext.onmousedown = fnNext;
+
+            currentTime = setInterval("autoPlay()",autoMs);
+        }
+
+        // 前一张
+        function fnPrev()
+        {
+            var obj    = document.getElementById("play");
+            var oOl    = obj.getElementsByTagName("ol")[0];
+            var aLis   = oOl.getElementsByTagName("li");
+            nextTarget-=1;
+            if(nextTarget < 0){ nextTarget = aLis.length-1; }
+            goTime(nextTarget);
+        }
+
+        // 后一张
+        function fnNext()
+        {
+            var obj    = document.getElementById("play");
+            var oOl    = obj.getElementsByTagName("ol")[0];
+            var aLis   = oOl.getElementsByTagName("li");
+            nextTarget+=1;
+            if(nextTarget === aLis.length){ nextTarget = 0; }
+            goTime(nextTarget);
+        }
+
+        // 自动播放
+        function autoPlay()
+        {
+            var obj    = document.getElementById("play");
+            var oOl    = obj.getElementsByTagName("ol")[0];
+            var aLis   = oOl.getElementsByTagName("li");
+
+            nextTarget+=1;
+            if( nextTarget >= aLis.length ) { nextTarget = 0; }
+            goTime(nextTarget)
+        }
+
+        // 获取当前的索引值
+        function getIndx()
+        {
+            var obj    = document.getElementById("play");
+            var oOl    = obj.getElementsByTagName("ol")[0];
+            var aLis   = oOl.getElementsByTagName("li");
+
+            for( var i = 0; i < aLis.length; i+=1 )
+            {
+                if(aLis[i] === this)
+                {
+                    goTime(i);
+                }
+            }
+        }
+
+        // 开始启动
+        function goTime(index)
+        {
+            var obj      = document.getElementById("play");
+            var oUl      = obj.getElementsByTagName("ul")[0];
+            var oOl      = obj.getElementsByTagName("ol")[0];
+            var aLis     = oOl.getElementsByTagName("li");
+            var iLiWidth = oUl.getElementsByTagName("li")[0].offsetWidth;
+
+            for( var i = 0; i < aLis.length; i+=1 )
+            {
+                aLis[i].className = "";
+            }
+            aLis[index].className = "active";
+
+            iTarget = -index * iLiWidth;
+
+            if(timer){ clearInterval(timer); }
+            timer = setInterval("doMove("+ iTarget +")",ms)
+            doMove(iTarget);
+        }
+
+        // 图片滑动
+        function doMove(target)
+        {
+            var obj = document.getElementById("play");
+            var oUl = obj.getElementsByTagName("ul")[0];
+
+            oUl.style.left = speed + "px";
+            speed+=(target - oUl.offsetLeft)/3;
+
+            if( Math.abs(target-oUl.offsetLeft) === 0 )
+            {
+                oUl.style.left = target + "px";
+                clearInterval(timer); timer = null;
+            }
+        }
+
+    </script>
+</head>
+
+<body>
+
+<div class="box" id="play">
+    <p class="prev">&laquo;</p>
+    <p class="next">&raquo;</p>
+    <ol>
+        <li class="active">1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+    </ol>
+    <ul>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告一" /></a></li>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告二" /></a></li>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告三" /></a></li>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告四" /></a></li>
+        <li><a href="http://www.miaov.com/"><img src="../../others/a.jpg" alt="广告五" /></a></li>
+    </ul>
+</div>
+
+</body>
+</html>

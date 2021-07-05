@@ -1,0 +1,290 @@
+<!doctype html>
+<html>
+<head><title>时钟</title>
+<style>
+    body {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+    }
+    #yuan{
+        width:100px;
+        height:50px;
+        border-top:2px solid red;
+        border-right:2px solid red;
+        border-bottom:50px solid red;
+        border-left:2px solid red;
+        border-radius:100px;
+        position:relative;/*设置为对象的参照物*/
+    }
+
+    #yuan::after{
+        content:'';
+        width:10px;
+        height:10px;
+        border:20px solid yellow;
+        position:absolute;
+        left:0;
+        top:25px;
+        border-radius:50px;
+        background:#fff;
+    }
+    #yuan::before{
+        content:'';
+        width:10px;
+        height:10px;
+        border:20px solid #FFF;
+        position:absolute;
+        right:0;
+        top:25px;
+        border-radius:50px;
+        background:red;
+    }
+    .star {
+        background:#eee;
+    }
+    .system {
+        background-color: black;
+    }
+</style>
+</head>
+<body>
+<canvas id="clock" width="500" height="500">您的浏览器不支持canvas标签，无法看到时钟</canvas><br/>
+<div id="yuan"></div><br/>
+<canvas id="star" width=500 height=500></canvas><br/>
+<canvas id="system" width="1000" height="1000" style="background-color: black"></canvas>
+<script>
+    var clock=document.getElementById('clock');
+    var cxt=clock.getContext('2d');
+    cxt.lineWidth=10;
+    cxt.strokeStyle="blue";
+    function drawClock(){
+        let i;
+        //清除画布
+        cxt.clearRect(0,0,500,500);
+        var now =new Date();
+        var sec=now.getSeconds();
+        var min=now.getMinutes();
+        var hour=now.getHours();
+        hour=hour+min/60;
+        hour=hour>12?hour-12:hour;
+        cxt.beginPath();
+        cxt.arc(250,250,200,0,360,false);
+        cxt.closePath();
+        cxt.stroke();
+        //时刻度
+        for(i = 0; i<12; i++){
+            cxt.save();
+            cxt.lineWidth=7;
+            cxt.strokeStyle="#f00";
+            cxt.translate(250,250);
+            cxt.rotate(i*30*Math.PI/180);//角度*Math.PI/180=弧度
+            cxt.beginPath();
+            cxt.moveTo(0,-170);
+            cxt.lineTo(0,-190);
+            cxt.closePath();
+            cxt.stroke();
+            cxt.restore();
+        }
+        //分刻度
+        for(i = 0; i<60; i++){
+            cxt.save();
+            //设置分刻度的粗细
+            cxt.lineWidth=5;
+            //设置颜色(使用时刻度的颜色)
+            cxt.strokeStyle="#000";
+            //设置或者重置画布的0，0点
+            cxt.translate(250,250);
+            //设置旋转角度
+            cxt.rotate(i*6*Math.PI/180);
+            //画分针刻度
+            cxt.beginPath();
+            cxt.moveTo(0,-180);
+            cxt.lineTo(0,-190);
+            cxt.closePath();
+            cxt.stroke();
+            cxt.restore();
+        }
+
+        //时针
+        cxt.save();
+        cxt.lineWidth=7;
+        cxt.strokeStyle="#000";
+        cxt.translate(250,250);
+        cxt.rotate(hour*30*Math.PI/180);
+        cxt.beginPath();
+        cxt.moveTo(0,-140);
+        cxt.lineTo(0,10);
+        cxt.closePath();
+        cxt.stroke();
+        cxt.restore();
+        //分针
+        cxt.save();
+        cxt.lineWidth=5;
+        cxt.strokeStyle="#000";
+        cxt.translate(250,250);
+        cxt.rotate(min*6*Math.PI/180);
+        cxt.beginPath();
+        cxt.moveTo(0,-160);
+        cxt.lineTo(0,15);
+        cxt.closePath();
+        cxt.stroke();
+        cxt.restore();
+        //秒针
+        cxt.save();
+        cxt.strokeStyle="red";
+        cxt.lineWidth=3;
+        cxt.translate(250,250);
+        cxt.rotate(sec*6*Math.PI/180);
+        cxt.beginPath();
+        cxt.moveTo(0,-170);
+        cxt.lineTo(0,20);
+        cxt.closePath();
+        cxt.stroke();
+        //画出时针、分针、秒针的交叉点、
+        cxt.beginPath();
+        cxt.arc(0,0,5,0,360,false);
+        cxt.closePath();
+        cxt.fillStyle="gray";
+        cxt.fill();
+        cxt.stroke();
+        //设置秒针前段的小圆点
+        cxt.beginPath();
+        cxt.arc(0,-150,5,0,360,false);
+        cxt.closePath();
+        cxt.fillStyle="gray";
+        cxt.fill();
+        cxt.stroke();
+        cxt.restore();
+    }
+    drawClock();
+    setInterval(drawClock,1000);
+
+    // ===================================================================
+    window.onload=function  () {
+        var canvas=document.getElementById("star");
+        var cobj=canvas.getContext("2d");
+        var starArr=[];
+        for (var i=0; i<30; i++) {
+            var starObj={
+                radius1:20+10*Math.random(),
+                radius2:8+7*Math.random(),
+                x:30+(canvas.width-60)*Math.random(),
+                y:30+(canvas.height-60)*Math.random(),
+                num:Math.ceil(4+4*Math.random()),
+                color:"rgb("+parseInt(255*Math.random())+","+parseInt(255*Math.random())+","+parseInt(255*Math.random())+")",
+                angle:360*Math.random(),changeAngle:-5+10*Math.random()
+            }
+            starArr.push(starObj);
+        }
+        setInterval(function  () {
+            cobj.clearRect(0,0,500,500);
+            for (var i=0; i<starArr.length; i++) {
+                starArr[i].angle+=starArr[i].changeAngle;
+                cobj.save();
+                cobj.beginPath();
+                cobj.translate(starArr[i].x,starArr[i].y);
+                cobj.rotate(starArr[i].angle*Math.PI/180);
+                cobj.scale(Math.sin(starArr[i].angle*Math.PI/180),Math.sin(starArr[i].angle*Math.PI/180))
+                cobj.globalAlpha=Math.abs(Math.sin(starArr[i].angle*Math.PI/180));
+                drawStar (0,0,starArr[i].radius1,starArr[i].radius2,starArr[i].num,"fill",starArr[i].color);
+                cobj.restore();
+            }
+        },60)
+
+        function drawStar (x,y,radius1,radius2,num,drawType,color) {
+            var angle=360/(num*2);
+            var arr=[];
+            for (var i=0; i<num*2; i++) {
+                var starObj={};
+                if(i%2==0){
+                    starObj.x=x+radius1*Math.cos(i*angle*Math.PI/180);
+                    starObj.y=y+radius1*Math.sin(i*angle*Math.PI/180);
+                }else{
+                    starObj.x=x+radius2*Math.cos(i*angle*Math.PI/180);
+                    starObj.y=y+radius2*Math.sin(i*angle*Math.PI/180);
+                }
+                arr.push(starObj);
+            }
+            cobj.beginPath();
+            cobj.fillStyle=color;
+            cobj.strokeStyle=color;
+            cobj.moveTo(arr[0].x,arr[0].y);
+            for (var i=1; i<arr.length; i++) {
+                cobj.lineTo(arr[i].x,arr[i].y);
+            }
+            cobj.closePath();
+            if(drawType=="fill"){
+                cobj.fill();
+            }else{
+                cobj.stroke();
+            }
+        }
+    }
+    // ===================================================================
+    var cxt=document.getElementById('system').getContext('2d');
+    //轨道
+    function drawTrack(){
+        for(var i=0;i<8;i++){
+            cxt.beginPath();
+            cxt.arc(500,500,(i+1)*50,0,360,false);
+            cxt.closePath();
+            cxt.strokeStyle="#fff";
+            cxt.stroke();
+        }
+
+    }
+    //星球
+    function Star(x,y,radius,cycle,sColor,eColor){
+        this.x=x;
+        this.y=y;
+        this.radius=radius;
+        this.cycle=cycle;
+        this.sColor=sColor;
+        this.eColor=eColor;
+        this.color=null;
+        this.time=0;
+        this.draw=function(){
+            cxt.save();
+            cxt.translate(500,500);
+            cxt.rotate(this.time*(360/this.cycle)*Math.PI/180);
+            cxt.beginPath();
+            cxt.arc(this.x,this.y,this.radius,0,360,false);
+            cxt.closePath();
+            this.color=cxt.createRadialGradient(this.x,this.y,0,this.x,this.y,this.radius);
+            this.color.addColorStop(0,this.sColor);//渐变开始点和颜色
+            this.color.addColorStop(1,this.eColor);//渐变结束点和颜色
+            cxt.fillStyle=this.color;//将渐变对象复制给填充画笔
+            cxt.fill();
+            cxt.restore();
+            this.time+=1;
+        }
+    }
+
+    var sun=new Star(0,0,20,0,"#F00","#f90");
+    var water=new Star(0,-50,10,87.70,"#A69697","#5C3E40");
+    var gold=new Star(0,-100,10,224.701,"#C4BBAC","#1F1315");
+    var diqiu=new Star(0,-150,10,365.224,"#78B1E8","#050C12");
+    var fire=new Star(0,-200,10,686.98,"#CEC9B6","#76422D");
+    var wood=new Star(0,-250,10,4332.589,"#C0A48E","#322222");
+    var soil=new Star(0,-300,10,10759.5,"#F7F9E3","#5C4533");;
+    var god=new Star(0,-350,10,30799.095,"#A7E1E5","#19243A");
+    var sea=new Star(0,-400,10,60152,"#0661B2","#1E3B73");
+
+    function move(){
+        cxt.clearRect(0,0,1000,1000);
+        drawTrack();
+        sun.draw();
+        water.draw();
+        gold.draw();
+        diqiu.draw();
+        fire.draw();
+        wood.draw();
+        soil.draw();
+        god.draw();
+        sea.draw();
+    }
+    setInterval(move,10);
+</script>
+</body>
+</html>

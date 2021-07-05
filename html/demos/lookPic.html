@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>实用的全屏相册展示</title>
+
+    <script type="text/javascript">
+        function getStyle(obj, attr)
+        {
+            if(obj.currentStyle)
+            {
+                return obj.currentStyle[attr];
+            } else {
+                return getComputedStyle(obj, false)[attr];
+            }
+        }
+
+        //startMove(oDiv, {width: 200, height: 200});
+
+        function startMove(obj, json, fnEnd)
+        {
+            clearInterval(obj.timer);
+            var attr;
+            obj.timer=setInterval(function (){
+
+                var bStop=true;		//是不是都到了，假设所有的都到了
+
+                for(attr in json)
+                {
+                    var iCur=0;
+
+                    //取当前位置
+                    if(attr=='opacity')
+                    {
+                        iCur=parseInt(parseFloat(getStyle(obj, attr))*100);
+                    }
+                    else
+                    {
+                        iCur=parseInt(getStyle(obj, attr));
+                    }
+
+                    //算速度
+                    var iSpeed=(json[attr]-iCur)/8;
+                    iSpeed=iSpeed>0?Math.ceil(iSpeed):Math.floor(iSpeed);
+
+                    //到没到
+
+                    if(attr=='opacity')
+                    {
+                        obj.style.filter='alpha(opacity:'+(iCur+iSpeed)+')';
+                        obj.style.opacity=(iCur+iSpeed)/100;
+                    }
+                    else
+                    {
+                        obj.style[attr]=iCur+iSpeed+'px';
+                    }
+
+                    if(iCur!=json[attr])
+                    {
+                        bStop=false;
+                    }
+                }
+
+                if(bStop)
+                {
+                    clearInterval(obj.timer);
+                    if(fnEnd)
+                    {
+                        fnEnd();
+                    }
+                }
+                //alert(obj.offsetHeight);
+            }, 30);
+        }
+    </script>
+    <script>
+        window.onload = function()
+        {
+            var oPrev = document.getElementById('prev');
+            var oNext = document.getElementById('next');
+            var oPlay = document.getElementById('play');
+            var oImg = document.getElementById('images');
+            var _Img = document.getElementById('img');
+            var _aImg = document.getElementById('img02')
+            var aDiv = _Img.getElementsByTagName('div');
+            var aImg = oImg.getElementsByTagName('img');
+            var oPrevSm = document.getElementById('prevSm');
+            var oNextSm = document.getElementById('nextSm');
+            var thisImg = document.getElementById('length');
+            var length = document.getElementById('thisImg');
+            var oLayer = document.getElementById('layer');
+            var aLayerImg = oLayer.getElementsByTagName('img');
+            var oClose = document.getElementById('close');
+            var oAlbum = document.getElementById('album');
+            var iNow = 0;
+            var timer = null;
+            var play = 0;
+            var zIndex = 3;
+
+            function initial()
+            {
+                //初始化
+                oImg.style.height = document.documentElement.clientHeight + 'px';
+                for(var i=0;i<aDiv.length;i++)
+                {
+                    aDiv[i].style.width = document.documentElement.clientWidth + 'px';
+                    aDiv[i].style.height = document.documentElement.clientHeight + 'px';
+                }
+                for(var i=0;i<aImg.length;i++)
+                {
+                    aImg[i].style.width = document.documentElement.clientWidth + 'px';
+                }
+
+                //图片个数初始化
+                length.innerHTML = aLayerImg.length;
+                thisImg.innerHTML = iNow+1;
+                oImg.style.width = document.documentElement.clientWidth;
+                oImg.style.height = document.documentElement.clientHeight;
+
+
+                oLayer.style.left = (document.documentElement.clientWidth - oLayer.offsetWidth)/2 + 'px'
+                oLayer.style.top = (document.documentElement.clientHeight - oLayer.offsetHeight)/2 + 'px'
+
+                oPrevSm.src = aLayerImg[aLayerImg.length-1].src;
+                oNextSm.src = aLayerImg[iNow+1].src;
+            }
+            initial();
+            window.onresize = initial;
+
+
+            for(var i=0; i<aLayerImg.length;i++)
+            {
+                aLayerImg[i].index = i;
+                aLayerImg[i].onclick = function()
+                {
+                    _aImg.src = this.src;
+                    oLayer.style.display = 'none';
+
+                    iNow = this.index;
+                    imgClick();
+                    startMove(oLayer, {opacity:0},function(){
+                        startMove(oAlbum, {opacity:100})
+                    });
+                }
+            }
+
+            oClose.onclick = function()
+            {
+                oLayer.style.display = 'none';
+                startMove(oAlbum, {opacity:100})
+            }
+
+            oAlbum.onclick = function()
+            {
+                oLayer.style.display = 'block';
+                oLayer.style.filter='alpha(opacity:100)';
+                oLayer.style.opacity=1;
+                startMove(oAlbum, {opacity:0});
+                initial();
+            }
+
+            function imgClick()
+            {
+                _aImg.style.filter='alpha(opacity:0)';
+                _aImg.style.opacity=0;
+
+                if(iNow==0)
+                {
+                    oPrevSm.src = aLayerImg[aLayerImg.length-1].src;
+                    oNextSm.src = aLayerImg[iNow+1].src;
+                    thisImg.innerHTML = iNow+1;
+                }
+                else if(iNow==aLayerImg.length-1)
+                {
+                    oNextSm.src = aLayerImg[0].src;
+                    oPrevSm.src = aLayerImg[aLayerImg.length-2].src;
+                    thisImg.innerHTML = iNow+1;
+                    _aImg.src = 'images/' + (iNow+1) + '.jpg';
+                }
+                else
+                {
+                    oPrevSm.src = aLayerImg[iNow-1].src;
+                    oNextSm.src = aLayerImg[iNow+1].src;
+                    thisImg.innerHTML = iNow+1;
+                    _aImg.src = 'images/'+ (iNow+1) +'.jpg';
+                }
+
+                _aImg.src = '../others/a.jpg';
+                startMove(_aImg,{opacity:100});
+            }
+            oNextSm.onclick = oNext.onclick = function()
+            {
+                if(iNow==aLayerImg.length-1)
+                {
+                    iNow=0;
+                }
+                else
+                {
+                    iNow++;
+                }
+                imgClick();
+            }
+
+            oPrevSm.onclick = oPrev.onclick = function()
+            {
+                if(iNow==0)
+                {
+                    iNow=aLayerImg.length-1;
+                }
+                else
+                {
+                    iNow--;
+                }
+                imgClick();
+            }
+
+            oPlay.onclick = function()
+            {
+                play++;
+                if(play%2==1)
+                {
+                    this.src = 'img/play_dull.png';
+                    timer = setInterval(function(){
+                        if(iNow==aLayerImg.length-1)
+                        {
+                            iNow=0;
+                        }
+                        else
+                        {
+                            iNow++;
+                        }
+                        //thisImg.innerHTML = iNow+1;
+                        imgClick();
+                    },2500)
+                }
+                else
+                {
+                    this.src = 'img/pause_dull.png';
+                    clearInterval(timer);
+                }
+            }
+
+            //交互效果
+            oNext.onmousedown = function()
+            {
+                this.src = 'img/forward.png';
+            }
+            oNext.onmouseup = function()
+            {
+                this.src = 'img/forward_dull.png';
+            }
+            oPlay.onmousedown = function()
+            {
+                this.src = 'img/pause.png';
+            }
+            oPlay.onmouseup = function()
+            {
+                this.src = 'img/pause_dull.png';
+                this.src = 'img/play_dull.png';
+            }
+            oPrev.onmousedown = function()
+            {
+                this.src = 'img/back.png';
+            }
+            oPrev.onmouseup = function()
+            {
+                this.src = 'img/back_dull.png';
+            }
+        }
+    </script>
+
+
+
+    <style>
+        @charset "utf-8";
+        /*清零*/
+        body,ul,ol,li,p,h1,h2,h3,h4,h5,h6,form,fieldset,table,td,img,div,dl,dt,dd,input{margin:0;padding:0;border:0;}
+        body{font-size:12px; /*font-family:"宋体";font-family:'Microsoft YaHei';*/}
+        ul,ol{list-style-type:none;}
+        select,input,img{vertical-align:middle;}
+        a{text-decoration:none;}
+        /*妙味课堂*/
+        body {background:#111;}
+        img{border:none;}
+
+        #supersized-loader { position:absolute; top:50%; left:50%; z-index:10; width:60px; height:60px; margin:-30px 0 0 -30px; text-indent:-999em; background-color:#111; background:rgba(0,0,0,0.8) url(../img/progress.gif) no-repeat center center; -webkit-border-radius:5px; -moz-border-radius:5px; border-radius:5px;}
+
+        #supersized { position:fixed; left:0; top:0; overflow:hidden; z-index:-999; height:100%; width:100%; }
+        #supersized img{ width:auto; height:auto; position:relative; display:none; outline:none; border:none; }
+        #supersized.speed img { -ms-interpolation-mode:nearest-neighbor; image-rendering: -moz-crisp-edges;}	/*Speed*/
+        #supersized.quality img { -ms-interpolation-mode:bicubic; image-rendering: optimizeQuality; }
+
+        #supersized a { z-index:-30; position:absolute; overflow:hidden; top:0; left:0; width:100%; height:100%; background:#111;}
+        #supersized a.prevslide {z-index:-20; }
+        #supersized a.activeslide {z-index:-10; }
+        #supersized a.prevslide img, #supersized a.activeslide img{ display:inline; }
+
+        /*Controls Section*/
+        #controls-wrapper { margin:0 auto; height:62px; width:100%; bottom:0; left:0; z-index:4; background:url(../img/nav-bg.png) repeat-x; position:fixed; }
+        #controls { overflow:hidden; height:100%; text-align:left; z-index:5; padding:0 114px; /* Increase padding to give thumbnails room */ }
+        #slidecounter { float:left; color:#888; font:23px "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight:bold; text-shadow:#000 0 -1px 0; margin:19px 10px 18px 20px; }
+        #slidecaption { overflow:hidden; float:left; color:#FFF; font:16px "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight:bold; text-shadow:#000 0 2px 0; margin:23px 20px 23px 0; }
+        #navigation { float:right; margin:10px 20px 0 0; }
+
+        /*Thumbnail Navigation*/
+        #nextthumb,#prevthumb { z-index:6; display:none; position:fixed; bottom:12px; height:75px; width:100px; overflow:hidden; background:#ddd; border:2px solid #fff; -webkit-box-shadow:0 0 5px #000; }
+        #nextthumb { right:12px; }
+        #prevthumb { left:12px; }
+        #nextthumb img, #prevthumb img { width:150px; height:auto;  }
+        #nextthumb:active, #prevthumb:active { bottom:10px; }
+        #navigation > :hover,#nextthumb:hover, #prevthumb:hover { cursor:pointer; }
+        #album{opacity:0;/*非IE*/filter:alpha(opacity=0);/*IE*/}
+
+
+        /*------------------------*/
+
+        p{ padding:30px; color:#fff; font:11pt "Helvetica Neue", "Helvetica", Arial, sans-serif; text-shadow: #000 0px 1px 0px; line-height:200%; }
+        p a{ font-size:10pt; text-decoration:none; outline: none; color:#ddd; background:#222; border-top:1px solid #333; padding:5px 8px; -moz-border-radius:3px; -webkit-border-radius:3px; border-radius:3px; -moz-box-shadow: 0px 1px 1px #000; -webkit-box-shadow: 0px 1px 1px #000; box-shadow: 0px 1px 1px #000; }
+        p a:hover{ background-color:#427cb4; border-color:#5c94cb; color:#fff; }
+        h3{ padding:30px 30px 20px 30px; }
+
+        #content{ position:absolute; top:50px; left:50px; background:#111; background:rgba(0,0,0,0.50); width:360px; text-align:left; -webkit-border-radius:6px; -moz-border-radius:6px; z-index:99;border-radius:3px;}
+        .stamp{ float: right; margin: 15px 30px 0 0;}
+
+
+        /*img */
+        #images{width:100%; overflow:hidden; height:100%;}
+        #images div{float:left; height:100%; width:100%; overflow:hidden; position:absolute; z-index:1;}
+        #images img{margin:0 auto; display:block; left:0; top:0;opacity:0;/*非IE*/filter:alpha(opacity=0);/*IE*/}
+
+
+        /*弹出层*/
+        .layer{width:653px; height:439px; margin:0 auto; position:absolute; background:url(../img/layer.png) left top no-repeat; z-index:999999; overflow:hidden;opacity:1;/*非IE*/filter:alpha(opacity=100);/*IE*/}
+        .layer h3{height:30px; text-align:right; padding:0; margin:0;}
+        .layer h3 a{display:inline-block; width:26px; height:24px; float:right;}
+        .layer h3 span{float:left; padding-left:20px; line-height:25px; color:#FFF;}
+        .layer div{padding-left:10px;}
+        .layer img{margin:10px; border:#FFF solid 3px; float:left; width:132px; cursor:pointer; height:90px; display:block;}
+    </style>
+</head>
+<body>
+<!--弹出层-->
+<div class="layer" id="layer">
+    <h3><span>相册内容</span><a href="javascript:;" id="close"></a></h3>
+    <div>
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+        <img src="../../others/a.jpg">
+    </div>
+</div>
+<div id="images">
+    <div id="img">
+        <div style="z-index:2;"><img src="images/default.jpg" id="img02"></div>
+    </div>
+</div>
+<div id="controls-wrapper">
+    <div id="controls">
+        <div id="slidecounter">
+            <span class="slidenumber" id="length"></span>/<span class="totalslides" id="thisImg"></span>
+        </div>
+        <div id="slidecaption">www.miaov.com</div>
+        <div id="navigation">
+            <img src="img/album.png" id="album"><img id="prev" src="img/back_dull.png"><img id="play" src="img/pause_dull.png"><img id="next" src="img/forward_dull.png">
+        </div>
+    </div>
+
+    <div id="prevthumb" style="display: block; "><img src="images/default.jpg" id="prevSm"></div>
+    <div id="nextthumb" style="display: block; "><img src="images/default.jpg" id="nextSm"></div>
+</div>
+
+</body>
+</html>

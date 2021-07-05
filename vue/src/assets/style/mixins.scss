@@ -1,0 +1,43 @@
+@charset "utf-8";
+@import './variables';
+@mixin positionAll($position,$top,$right,$bottom,$left){
+  position: $position;
+  @if $top{
+    top: $top;
+  }
+  @if $right{
+    right: $right;
+  }
+  @if $bottom{
+    bottom: $bottom;
+  }
+  @if $left{
+    left: $left;
+  }
+}
+@mixin positionTL($position,$top:0,$left:0){
+  position: $position;
+  top: $top;
+  left: $left;
+}
+@mixin positionBL($position,$bottom:0,$left:0){
+  position: $position;
+  bottom: $bottom;
+  left: $left;
+}
+
+@mixin size($width,$height){
+  width: $width;
+  height: $height;
+}
+
+@mixin fl($font-size,$line-height){
+  font-size: $font-size;
+  line-height: $line-height;
+}
+
+@mixin flc($font-size,$line-height,$color: $primary-color){
+  font-size: $font-size;
+  line-height: $line-height;
+  color: $color;
+}

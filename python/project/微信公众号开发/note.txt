@@ -1,0 +1,45 @@
+1. 101.200.170.171
+用户名：s80行号 s8001
+密码：123456a
+端口：80行号	8001
+／wechat端口/  /wechat8001/
+2. ssh s8001@101.200.170.171
+
+3. scp 源文件 目标文件
+scp /path/wechat.py s8001@101.200.170.171:~/dir/
+
+scp s8001@101.200.170.171:/path/file ./
+
+4.workon tornado_py2
+Python WeChat.py
+
+<h1>你好</h1>
+
+5. 双方达成的一致协议
+注册url
+Api接口协议
+url /api/wechat
+Method get/post
+传入参数 
+返回参数
+
+接口文档
+
+6. 对应ctrl+z
+Fg命令调回到前端. Frontground 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "/www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="/www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>满屏飘舞的小图标-妙味课堂-www.miaov.com</title>
+    <style>
+        html{height:100%;overflow:hidden;}
+        body{margin:0;height:100%; background:#7a4b94;}
+        h1 { margin:0; height:50px; background:#333; line-height:50px; position:relative; z-index:999; filter:alpha(opacity:80); opacity:0.8; }
+        h1 strong { color:#fff; font-family:arial; font-size:18px; position:absolute; top:0px; left:4%; }
+        a { position:absolute; top:0px; right:20px; color:#fff; margin-right:50px; text-decoration:none; font-family:Arial, Helvetica, sans-serif; font-size:14px; font-weight:normal; }
+        a:hover { text-decoration:underline; }
+        h2{ margin:0; width:96%; padding:10px 0 14px 4%; background:#333; position:absolute; bottom:0; left:0; z-index:999; filter:alpha(opacity:80); opacity:0.8; color:#fff; font-size:12px; line-height:20px; font-family:Arial, Helvetica, sans-serif; font-weight:normal; }
+        h2 strong { font-size:14px; }
+    </style>
+    <script >
+        function toBrowser()
+        {
+            var browser=navigator.appName;
+            var b_version=navigator.appVersion;
+            if(browser=="Netscape")
+            {
+                return true;
+            }
+            var version=b_version.split(";");
+            var trim_Version=version[1].replace(/[ ]/g,"");
+
+            if(browser=="Microsoft Internet Explorer" &&( trim_Version=="MSIE7.0" || trim_Version=="MSIE6.0" || trim_Version=="MSIE8.0"))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        function starMove(obj,target,iType,fnEnd,iDate)
+        {
+            if(obj.timer)
+            {
+                clearInterval(obj.timer);
+            }
+            if(iType==1)
+            {
+                var sAttr="";
+                obj.iSpeed={};
+                for( sAttr in  target)
+                {
+                    obj.iSpeed[sAttr]=0;
+                }
+            }
+            if(target["transform"])
+            {
+                if(obj["transform"])
+                {
+                    target["transform"]+=obj["transform"];
+                }
+                else
+                {
+                    css(obj,sAttr,0);
+                }
+            }
+            switch(iType)
+            {
+                case 0:
+                    obj.timer=setInterval(function(){doMoveBuffer(obj,target,fnEnd);},24);
+                    break;
+                case 1:
+                    obj.timer=setInterval(function(){domoveFlexible(obj,target,fnEnd);},24);
+                    break;
+            }
+        }
+        function doMoveBuffer(obj,target,fnEnd)
+        {
+            var sAttr="";
+            var iEnd=1;
+            for(sAttr in target)
+            {
+                if(toBrowser()==false && target["transform"])
+                {
+                    continue;
+                }
+                var iNow=parseFloat(css(obj,sAttr));
+                if(iNow==target[sAttr])
+                {
+                    continue;
+                }
+                else
+                {
+                    var iSpeed=(target[sAttr]-iNow)/5;
+                    iSpeed*=0.75;
+                    if(iSpeed>0)
+                    {
+                        iSpeed=Math.ceil(iSpeed);
+                    }
+                    else
+                    {
+                        iSpeed=Math.floor(iSpeed);
+                    }
+                    css(obj,sAttr,iNow+=iSpeed);
+                    iEnd=0;
+                }
+            }
+            if(iEnd)
+            {
+                clearInterval(obj.timer);
+                if(fnEnd)
+                {
+                    fnEnd.call(obj);
+                }
+            }
+        }
+
+        function domoveFlexible(obj,target,fnEnd)
+        {
+            var sAttr="";
+            var iEnd=1;
+
+            for( sAttr in target)
+            {
+                if(toBrowser()==false && target["transform"])
+                {
+                    continue;
+                }
+                var iNow=parseFloat(css(obj,sAttr));
+                obj.iSpeed[sAttr]+=(target[sAttr]-iNow)/5;
+                obj.iSpeed[sAttr]*=0.83;
+                if(Math.round(iNow)==target[sAttr] && Math.abs(obj.iSpeed[sAttr])<1)
+                {
+                    continue;
+                }
+                else
+                {
+                    iNow=Math.round(iNow+obj.iSpeed[sAttr]);
+                    css(obj,sAttr,iNow);
+                    iEnd=0;
+                }
+            }
+            if(iEnd)
+            {
+                clearInterval(obj.timer);
+                if(fnEnd)
+                {
+                    fnEnd.call(obj);
+                }
+            }
+        }
+        function css(obj, attr, value)
+        {
+            if(arguments.length==2)
+            {
+                if(attr=="transform")
+                {
+                    return obj.transform;
+                }
+                var i=parseFloat(obj.currentStyle?obj.currentStyle[attr]:document.defaultView.getComputedStyle(obj, false)[attr]);
+                var val=i?i:0;
+                if(attr=="opacity")
+                {
+                    val*=100;
+                }
+                return val;
+            }
+            else if(arguments.length==3)
+            {
+                switch(attr)
+                {
+                    case 'width':
+                    case 'height':
+                    case 'paddingLeft':
+                    case 'paddingTop':
+                    case 'paddingRight':
+                    case 'paddingBottom':
+                        value=Math.max(value,0);
+                    case 'left':
+                    case 'top':
+                    case 'marginLeft':
+                    case 'marginTop':
+                    case 'marginRight':
+                    case 'marginBottom':
+                        obj.style[attr]=value+'px';
+                        break;
+                    case 'opacity':
+                        if(value<0)
+                        {
+                            value=0;
+                        }
+                        obj.style.filter="alpha(opacity:"+value+")";
+
+                        obj.style.opacity=value/100;
+                        break;
+                    case 'transform':
+                        obj.transform=value;
+                        obj.style["transform"]="rotate("+value+"deg)";
+                        obj.style["MsTransform"]="rotate("+value+"deg)";
+                        obj.style["MozTransform"]="rotate("+value+"deg)";
+                        obj.style["WebkitTransform"]="rotate("+value+"deg)";
+                        obj.style["OTransform"]="rotate("+value+"deg)";
+                        break;
+                    default:
+                        obj.style[attr]=value;
+                }
+
+                return function (attr_in, value_in){css(obj, attr_in, value_in)};
+            }
+        }
+        function getClass(sClass,obj)
+        {
+            var aRr=[];
+            if(obj)
+            {
+                var aTag=obj.getElementsByTagName('*');
+            }
+            else
+            {
+                var aTag=document.getElementsByTagName('*');
+            }
+            for(var i=0;i<aTag.length;i++)
+            {
+                var aClass=aTag[i].className.split(" ");
+                for(var j=0;j<aClass.length;j++)
+                {
+                    if(aClass[j]==sClass)
+                    {
+                        aRr.push(aTag[i]);
+                    }
+                }
+            }
+            return aRr;
+        }
+        function byClient(obj,attr)
+        {
+            if(attr=="width")
+            {
+                return css(obj,"borderLeft")+css(obj,"borderRight")+css(obj,"paddingLeft")+css(obj,"paddingWidth")+css(obj,"paddingWidth");
+            }
+            else if(attr=="height")
+            {
+                return css(obj,"borderTop")+css(obj,"borderBottom")+css(obj,"paddingTop")+css(obj,"paddingBottom")+css(obj,"paddingHeight");
+            }
+        }
+    </script>
+    <script>
+        window.onload=function()
+        {
+            var oTimer=null;
+            var iLeft=0;
+            var iTop=0;
+            var iWidth=20;
+            var iHeight=20;
+            var oDiv=document.getElementsByTagName("div")[0];
+
+            document.oncontextmenu=function()
+            {
+                return false;
+            };
+
+            document.onmousedown=function(e)
+            {
+                var ev=e||event;
+                iLeft=ev.clientX;
+                iTop=ev.clientY;
+                if(oTimer)
+                {
+                    clearInterval(oTimer);
+                }
+                oTimer=setInterval(function(){toAppend();},50);
+                return false;
+            }
+            document.onmousemove=function(e)
+            {
+                var ev=e||event;
+                iLeft=ev.clientX;
+                iTop=ev.clientY;
+                return false;
+            }
+            document.onmouseup=function()
+            {
+                clearInterval(oTimer);
+            }
+            function toAppend()
+            {
+                var oImg=new Image();
+                var sSrc="";
+                var iAngle=parseInt(Math.random()*1000)%360;
+                var iNubLeft=parseInt(Math.random()*100)%2?-parseInt(Math.random()*40):parseInt(Math.random()*40);
+                var iNubTop=parseInt(Math.random()*100)%2?-parseInt(Math.random()*40):parseInt(Math.random()*40);
+                var INub=parseInt(Math.random()*20);
+                var iNubW=INub+iWidth;
+                var iNubH=INub+iHeight;
+                iNubLeft+=iLeft-25;
+                iNubTop+=iTop-25;
+                sSrc="../others/circle.png";
+                oImg.src=sSrc;
+                oImg.onmousemove=function()
+                {
+                    return false;
+                };
+                with(oImg.style)
+                {
+                    width=iNubW+"px";
+                    height=iNubH+"px";
+                    position="absolute";
+                    left=iLeft-(iNubW/2)+"px";
+                    top=iTop-(iNubH/2)+"px";
+                }
+                css(oImg,"transform",iAngle);
+                document.body.appendChild(oImg);
+                starMove(oImg,{left:iNubLeft,top:iNubTop},1);
+            }
+        };
+    </script>
+</head>
+<body>
+<h1 title="妙味课堂-www.miaov.com">
+    <strong>~ 满屏飘舞的小图标 ~</strong>
+    <a href="/">妙味课堂 - www.miaov.com</a>
+</h1>
+
+<h2><strong>2012-04-17:</strong><br />When we were small, happiness was a simple thing.<br />After we have grown up, simplicity is a very happy thing.</h2>
+
+</body>
+</html>
