@@ -172,6 +172,7 @@ TYPE|cat |将文件输出到stdout
 XCOPY|cp |(扩展的)文件拷贝
 
 # 挂载nas目录：
+```bash
 export PASSWD=‘123456’
 remote_ip=192.168.1.2
 remote_dir=/data
@@ -181,7 +182,7 @@ local_dir=/mydata
 options=username=$remote_username,password=$remote_password,iocharset=utf8	
 mount -t cifs -o $options //$remote_ip$remote_dir $local_dir
 echo '//$remote_ip$remote_dir $local_dir cifs $options 0 0' >> /etc/fstab
-
+```
 
 sudo apt-get install mongodb-10gen  # 安装
 
