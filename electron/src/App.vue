@@ -10,5 +10,5 @@ export default {
 }
 </script>
 <style lang="scss">
-  @import 'utils/uni'; // 全局自定义的css样式
+  @import 'src/utils/uni'; // 全局自定义的css样式
 </style>

@@ -22,7 +22,7 @@ let whiteListedModules = ['vue']
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
-    renderer: path.join(__dirname, '../src/renderer/main.js')
+    renderer: path.join(__dirname, '../src/main.js')
   },
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
@@ -76,14 +76,14 @@ let rendererConfig = {
       {
         test: /\.svg$/,
         loader: 'svg-sprite-loader',
-        include: [path.join(__dirname, '../src/renderer/icons')],
+        include: [path.join(__dirname, '../src/icons')],
         options: {
           symbolId: 'icon-[name]'
         }
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        exclude: [path.join(__dirname, '../src/renderer/icons')],
+        exclude: [path.join(__dirname, '../src/icons')],
         use: {
           loader: 'url-loader',
           query: {
@@ -146,7 +146,7 @@ let rendererConfig = {
   },
   resolve: {
     alias: {
-      '@': path.join(__dirname, '../src/renderer'),
+      '@': path.join(__dirname, '../src'),
       'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
