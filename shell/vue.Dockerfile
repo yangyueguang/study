@@ -1,6 +1,6 @@
 FROM node:14.17.4 as node
 WORKDIR /app
-COPY . /app
+COPY script /app
 ENV PATH /app/node_modules/.bin:$PATH
 RUN npm install yarn -g
 RUN npm install @vue/cli@3.7.0 -g

@@ -1,5 +1,6 @@
 # Linux 学习笔记
 ## 终端快捷键:
+```bash
 Ctrl + a/Home 切换到命令行开始
 Ctrl + e/End 切换到命令行末尾
 Ctrl + l 清除屏幕内容，效果等同于 clear
@@ -47,8 +48,10 @@ PATH:决定了 shell 将到哪些目录中寻找命令或程序 HOME:当前用�
 MAIL:是指当前用户的邮件存放目录。 SHELL:是指当前用户用的是哪种 Shell。 HISTSIZE:是指保存历史命令记录的条数。 LOGNAME:是指当前用户的登录名。
 HOSTNAME:是指主机的名称，许多应用程序如果要用到主机名的话，通常是从这个环境变量中来取得的。 LANG/LANGUGE:是和语言相关的环境变量，使用多种语言的用户可以修改此环境变量。 PS1:是基本提示符，对于 root 用户是#，对于普通用户是$。 PS2:是附属提示符，默认是“>”。可以通过修改此环境变量来修改当前的命令符，比如下列命令
 会将提示符修改成字符串“Hello,My NewPrompt :) ”。 # PS1=" Hello,My NewPrompt :) "
+```
 
 十八、 压缩打包
+```bash
 linux 下的压缩命令有 tar、gzip、gunzip、bzip2、bunzip2、 compress、uncompress、zip、unzip、rar、 unrar 等等，压缩后的扩展名有.tar、.gz、.tar.gz、. tgz、.bz2、.tar.bz2、.Z、.tar.Z、.zip、.rar 10 种。
 对应关系如下:
 1、*.tar 用 tar –xvf 解压
@@ -60,13 +63,14 @@ linux 下的压缩命令有 tar、gzip、gunzip、bzip2、bunzip2、 compress、
 7、*.tar.Z 用 tar –xZf 解压
 8、*.rar 用 unrar e 解压
 9、*.zip 用 unzip 解压
-
+```
 
 which
 whereis
 whatis
 
 19 # 下边是另外一种判断root 用户的方法: 20
+```bash
 ROOTUSER_NAME=root
 username=`id -nu`
 if [ "$username" = "$ROOTUSER_NAME" ]
@@ -96,7 +100,7 @@ bash$ echo $TERM rxvt
 13. !STRING
 14. !?STRING?
 15. ^STRING^string^
-
+```
 
 ## 表格 L-1. 批处理文件关键字 / 变量 / 操作符, 和等价的shell符号
 批处理文件操作符|Shell脚本等价符号|含义
@@ -200,6 +204,7 @@ sudo apt-get install mongodb-10gen  # 安装
 	$ pip install anything # 在虚拟环境安装各种第三方库，还不需要sudo权限
 	$ deactivate # 直到某时刻不再需要使用虚拟环境
 
+```bash
 https://blog.csdn.net/u010502101/article/details/81839519
 ARGC               命令行参数个数
 ARGV               命令行参数排列
@@ -230,7 +235,7 @@ BEGIN{
 {
     fshow() 
 }' file4
-
+```
 
 
 tail [参数] [文件]  
@@ -246,6 +251,7 @@ tail [参数] [文件]
 -s, --sleep-interval=S 与-f合用,表示在每次反复的间隔休眠S秒
 
 通过跳板机传文件
+```bash
 ssh -t -p 10082 xiaoming@jumper.abc.com -fNL 51000:100.0.0.1:22 && scp -r -P 51000 /Users/xiaoming/test xiaoming@127.0.0.1:/tmp/
 
 临时关闭SELinux
@@ -257,7 +263,7 @@ setenforce 1
 getenforce
 开机关闭SELinux
 编辑/etc/selinux/config文件，如下图，将SELINUX的值设置为disabled。下次开机SELinux就不会启动了。
-
+```
 #### 一、配置网卡（无网环境忽略此条）
 
 ```shell
@@ -296,7 +302,7 @@ vi /etc/sysconfig/selinux
 setenforce 0
 getenforce
 ```
-
+```bash
 cat a.txt|sort|unique|xargs -n 100 | zip| splite -m 500m - a.tar.gz
 docker卸载
 $ sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux  docker-engine-selinux docker-engine
@@ -354,6 +360,7 @@ sudo apt-get install aview imagemagick
 wget http://labfile.oss.aliyuncs.com/courses/1/Linus.png 
 asciiview Linus.png
 
+```
 
 # 部署说明
 ```shell script
