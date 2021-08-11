@@ -1,41 +1,45 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import Cookies from 'js-cookie'
 import { login, logout, getInfo } from '@/utils/api'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { setToken, removeToken } from '@/utils/auth'
 
 Vue.use(Vuex)
-const user = {
+const dd = {
+  opened: false,
+  withoutAnimation: false
+}
+const store = new Vuex.Store({
   state: {
-    token: '23',
-    name: '',
-    avatar: '',
-    roles: []
-  },
-
-  mutations: {
-    SET_TOKEN: (state, token) => {
-      state.token = token
-    },
-    SET_NAME: (state, name) => {
-      state.name = name
-    },
-    SET_AVATAR: (state, avatar) => {
-      state.avatar = avatar
-    },
-    SET_ROLES: (state, roles) => {
-      state.roles = roles
+    sidebar: dd,
+    device: 'desktop',
+    user: {
+      token: '23',
+      name: '',
+      avatar: '',
+      roles: []
     }
   },
+
+  getters: {
+    user: state => state.user,
+  },
+  mutations: {
+    login(state, user) {
+      state.user = user;
+    },
+    logout: (state) => {
+      state.user = {}
+    },
+
+  },
   actions: {
-    // 登录
     Login({ commit }, userInfo) {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         login(username, userInfo.password).then(response => {
           const data = response.data
           setToken(data.token)
-          commit('SET_TOKEN', data.token)
+          commit('login', data)
           resolve()
         }).catch(error => {
           reject(error)
@@ -45,15 +49,12 @@ const user = {
     // 获取用户信息
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getInfo(state.token).then(response => {
+        getInfo(this.state.token).then(response => {
           const data = response.data
           if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -64,8 +65,7 @@ const user = {
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {
         logout(state.token).then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
+          commit('logout', '')
           removeToken()
           resolve()
         }).catch(error => {
@@ -77,64 +77,18 @@ const user = {
     FedLogOut({ commit }) {
       return new Promise(resolve => {
         removeToken()
-        commit('SET_TOKEN', '')
+        commit('logout', '')
         resolve()
       })
-    }
-  }
-}
-
-const app = {
-  state: {
-    sidebar: {
-      opened: !+Cookies.get('sidebarStatus'),
-      withoutAnimation: false
-    },
-    device: 'desktop'
-  },
-  mutations: {
-    TOGGLE_SIDEBAR: state => {
-      if (state.sidebar.opened) {
-        Cookies.set('sidebarStatus', 1)
-      } else {
-        Cookies.set('sidebarStatus', 0)
-      }
-      state.sidebar.opened = !state.sidebar.opened
-    },
-    CLOSE_SIDEBAR: (state, withoutAnimation) => {
-      Cookies.set('sidebarStatus', 1)
-      state.sidebar.opened = false
-      state.sidebar.withoutAnimation = withoutAnimation
-    },
-    TOGGLE_DEVICE: (state, device) => {
-      state.device = device
-    }
-  },
-  actions: {
-    ToggleSideBar: ({ commit }) => {
-      commit('TOGGLE_SIDEBAR')
     },
     CloseSideBar({ commit }, { withoutAnimation }) {
-      commit('CLOSE_SIDEBAR', withoutAnimation)
+      debugger
+      this.state.sidebar.opened = false
+      this.state.sidebar.withoutAnimation = withoutAnimation
     },
     ToggleDevice({ commit }, device) {
-      commit('TOGGLE_DEVICE', device)
+      this.state.device = device
     }
-  }
-}
-
-const store = new Vuex.Store({
-  modules: {
-    app,
-    user
-  },
-  getters: {
-    sidebar: state => state.app.sidebar,
-    device: state => state.app.device,
-    token: state => state.user.token,
-    avatar: state => state.user.avatar,
-    name: state => state.user.name,
-    roles: state => state.user.roles
   }
 })
 export default store

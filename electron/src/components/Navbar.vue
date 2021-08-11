@@ -22,7 +22,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/breadcrumb'
 import Hamburger from '@/components/humburger'
 
@@ -32,14 +31,16 @@ export default {
     Hamburger
   },
   computed: {
-    ...mapGetters([
-      'sidebar',
-      'avatar'
-    ])
+    sidebar(){
+      return this.$store.state.sidebar
+    },
+    avatar(){
+      return this.$store.state.user.avatar
+    }
   },
   methods: {
     toggleSideBar() {
-      this.$store.dispatch('ToggleSideBar')
+      this.$store.state.sidebar.opened = !this.$store.state.sidebar.opened
     },
     logout() {
       this.$store.dispatch('LogOut').then(() => {

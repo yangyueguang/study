@@ -7,7 +7,7 @@ const RATIO = 3
 export default {
   watch: {
     $route(route) {
-      if (this.device === 'mobile' && this.sidebar.opened) {
+      if (this.device === 'mobile') {
         store.dispatch('CloseSideBar', { withoutAnimation: false })
       }
     }

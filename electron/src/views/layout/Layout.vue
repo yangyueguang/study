@@ -23,17 +23,11 @@ export default {
   },
   mixins: [ResizeMixin],
   computed: {
-    sidebar() {
-      return this.$store.state.app.sidebar
-    },
-    device() {
-      return this.$store.state.app.device
-    },
     classObj() {
       return {
-        hideSidebar: !this.sidebar.opened,
-        withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
+        hideSidebar: !this.$store.state.sidebar.opened,
+        withoutAnimation: this.$store.state.sidebar.withoutAnimation,
+        mobile: this.$store.state.device === 'mobile'
       }
     }
   }
