@@ -1,21 +1,15 @@
 import Vue from 'vue'
-
-import 'normalize.css/normalize.css'// A modern alternative to CSS resets
-
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/en' // lang i18n
-
 import App from './App'
 import router from './router'
 import store from './store'
-
 import '@/icons' // icon
 import NProgress from 'nprogress' // Progress 进度条
 import 'nprogress/nprogress.css'// Progress 进度条样式
 import { Message } from 'element-ui'
-debugger
-const whiteList = ['/login'] // 不重定向白名单
+
 router.beforeEach((to, from, next) => {
   NProgress.start()
   if (store.getters.token) {
@@ -37,7 +31,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    if (whiteList.indexOf(to.path) !== -1) {
+    if (to.path === '/login') {
       next()
     } else {
       next('/login')
@@ -47,13 +41,10 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach(() => {
-  NProgress.done() // 结束Progress
+  NProgress.done()
 })
-
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
-
 Vue.use(ElementUI, { locale })
-
 Vue.config.productionTip = false
 
 new Vue({
