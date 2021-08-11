@@ -42,7 +42,7 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import '../../styles/variables.scss';
+@import '../../utils/uni';
 
 .scroll-container {
   position: relative;

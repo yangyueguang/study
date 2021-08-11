@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { getList } from '@/api/api'
+import { getList } from '@/utils/api'
 
 export default {
   data() {

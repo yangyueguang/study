@@ -3,8 +3,8 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 import App from './App'
-import router from './router'
-import store from './store'
+import router from '@/utils/router'
+import store from '@/utils/store'
 import '@/icons' // icon
 import NProgress from 'nprogress' // Progress 进度条
 import 'nprogress/nprogress.css'// Progress 进度条样式
