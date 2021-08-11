@@ -7,7 +7,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 Vue.use(Vuex)
 const user = {
   state: {
-    token: getToken(),
+    token: '23',
     name: '',
     avatar: '',
     roles: []
