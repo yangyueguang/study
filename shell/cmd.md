@@ -104,12 +104,6 @@ TREE [drive:][path] [/F] [/A]
    /A   使用ASCII字符而不使用扩展字符
 VER 显示 Windows 版本
 
-:find_wifi
-title 获取连接过的wifi密码
-for /f "skip=9 tokens=1,2 delims=:" %i in ('netsh wlan show profiles') do  @echo %i | findstr -i -v echo | netsh wlan show profiles %i key=clear >> "save.txt"
-echo wifi密码已保存到save.txt中
-goto :EOF
-
 REM echo %%i
 REM echo 字节大小：%%~zi
 REM echo 修改日期：%%~ti

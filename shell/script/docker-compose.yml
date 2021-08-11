@@ -1,55 +1,16 @@
-version: "3.4"
+version: "3.5"
 services:
-  search_data_sync:
-    image: dockerhub.datagrand.com/datagrand/pangu_zz57_search:19.11.28.2128
+  web:
+    image: xxxxxxxxxxxxx
     restart: always
     deploy:
       replicas: 1
-    networks:
-      - pangu-57zz
     environment:
-      # 控制search同步的时间间隔，单位是秒，要大于60
-      - "INTERVAL=60"
-    volumes:
-      - ./logs/search_data_sync:/root/search/logs
-      - ./data/search_data_sync:/root/search/data
-      - ./data/search_data_sync/transporter_config.py:/root/search/sync_data/transporter_config.py
-
-  suggest_data_sync:
-    image: dockerhub.datagrand.com/datagrand/pangu_zz57_search_tagging:19.11.28.2146
-    deploy:
-      replicas: 1
-    networks:
-      - pangu-57zz
-    environment:
-      # 控制tag同步的时间间隔，单位是秒，要大于60
-      - "INTERVAL=60"
-    volumes:
-      - ./logs/suggest_data_sync:/root/search/logs
-      - ./data/suggest_data_sync/tagging_config.py:/root/search/sync_data/tagging_config.py
-
-  pangu_online:
-    image: dockerhub.datagrand.com/zz57/pangu_online:zz57_19.11.28.2029
-    deploy:
-      mode: replicated
-      replicas: 1
-    secrets:
-      - pangu_global.conf
-    networks:
-      - pangu-57zz
+      - "domain=abc.com"
     ports:
-      - "0.0.0.0:39388:9288"
+      - 8080:8080
     volumes:
-      - ./logs/search_online:/root/search/search_online/logs
-      - ./data/search_online:/root/search/search_online/data
-      - ./settings/search_online:/root/search/search_online/settings
+      - ./data:/app/data
 
-networks:
-  pangu-57zz:
-    ipam:
-      config:
-        - subnet: 172.124.0.0/16
 
-secrets:
-  pangu_global.conf:
-    file: ./data/pangu_global.conf
+

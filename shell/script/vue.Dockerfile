@@ -1,23 +1,30 @@
-FROM node:10
-COPY ./ /app
+FROM node:14.17.4 as node
 WORKDIR /app
-RUN npm install && npm run build
+COPY . /app
+ENV PATH /app/node_modules/.bin:$PATH
+RUN npm install yarn -g
+RUN npm install @vue/cli@3.7.0 -g
+COPY package.json yarn.lock ./
+RUN yarn install
+RUN yarn run build:prd
 
-FROM nginx
+FROM nginx as nginx
 RUN mkdir /app
-COPY --from=0 /app/dist /app
+COPY --from=node /app/dist /app
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx_config/default.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
 
-====================================================
 
-在项目根目录创建 .dockerignore 文件
-设置 .dockerignore 文件能防止 node_modules 和其他中间构建产物被复制到镜像中导致构建问题。
-**/node_modules
-**/dist
 
+#在项目根目录创建 .dockerignore 文件
+#设置 .dockerignore 文件能防止 node_modules 和其他中间构建产物被复制到镜像中导致构建问题。
+#**/node_modules
+#**/dist
 
 # nginx.conf
-
+``` bash
 user  nginx;
 worker_processes  1;
 error_log  /var/log/nginx/error.log warn;
@@ -48,10 +55,4 @@ http {
     }
   }
 }
-
-
-# 构建你的 Docker 镜像
-docker build . -t my-app
-# 运行你的 Docker 镜像
-docker run -d -p 8080:80 my-app
-curl localhost:8080
+```

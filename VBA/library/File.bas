@@ -3,7 +3,7 @@ Option Explicit
 Public Const ZipTool_local_path = "\7za\7za"
 Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 Private Declare Function GetTempPathA Lib "kernel32" (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
-
+'某文件是否存在
 Function FileExists(strFileFullPath As String) As Boolean
     Dim objFSO As Object
     Set objFSO = CreateObject("Scripting.FileSystemObject")
@@ -11,8 +11,8 @@ Function FileExists(strFileFullPath As String) As Boolean
     Set objFSO = Nothing
 End Function
 
+' 某文件夹下是否有文件存在 Include read-only files, hidden files, system files.
 Public Function FileExists(ByVal testFilename As String, Optional findFolders As Boolean = False) As Boolean
-    ' Include read-only files, hidden files, system files.
     Dim attrs As Long
     attrs = (vbReadOnly Or vbHidden Or vbSystem)
     If findFolders Then
@@ -23,79 +23,13 @@ Public Function FileExists(ByVal testFilename As String, Optional findFolders As
     FileExists = (Dir(TrimTrailingChars(testFilename, "/\"), attrs) <> "")
 End Function
 
-'Check whether a file exists
-Function FileExists(ByVal strFile As String, Optional bFindFolders As Boolean) As Boolean
-    Dim lngAttributes As Long
-    lngAttributes = (vbReadOnly Or vbHidden Or vbSystem)
-    If bFindFolders Then
-        lngAttributes = (lngAttributes Or vbDirectory) 'Include folders as well.
-    Else
-        Do While Right$(strFile, 1) = "\"
-            strFile = Left$(strFile, Len(strFile) - 1)
-        Loop
-    End If
-    On Error Resume Next
-    FileExists = (Len(Dir(strFile, lngAttributes)) > 0)
-End Function
-
-Function FileExist(ByVal FilePath As String, ByVal FileName As String, Optional ByVal FileType As String = "NotGiven") As Boolean
-    Dim fName As String
-    FileExist = False
-    FilePath = IIf(Right(FilePath, 1) <> "\", FilePath & "\", FilePath)
-    If FileType <> "NotGiven" Then
-        If Right(FileName, 1) = "." Then
-            FileName = Left(FileName, Len(FileName) - 1)
-        End If
-        If Left(FileType, 1) <> "." Then
-            FileType = "." & FileType
-        End If
-        fName = FilePath & FileName & FileType
-    Else
-        fName = FilePath & FileName
-    End If
-    If Dir(fName) <> "" Then
-        FileExist = True
-    End If
-End Function
-
-Sub FileExistList()
-    'Define all the variables/options.
-    Dim i As Long           'Iteration counter
-    Dim LastRow As Long     'Last row to evaluate
-    Dim FirstRow As Long    'First row to evaluate
-    Dim fPath As String     'Directory where files should be
-    Dim fName As String     'File name (pulled from spreadsheet)
-    Dim fType As String     'File type (required by FileExist; can be used as array)
-    Dim nCol As Long        'Column where file names live
-    Dim rCol As Long        'Column where results are printed
-    Dim rTrue As String     'Text to return if file exists
-    Dim rFalse As String    'Text to return if file does not exist
-    FirstRow = 2
-    LastRow = FindLastRow(3)
-    nCol = 3
-    rCol = 2
-    fPath = "V:\Corporate\Tax\Public\Axip\Tx_Audit\Invoices\"
-    rTrue = "Y"
-    rFalse = "File not found"
-    For i = FirstRow To LastRow
-        fName = Cells(i, nCol)
-        If FileExist(fPath, fName) Then
-            Cells(i, rCol) = rTrue
-        Else
-            Cells(i, rCol) = rFalse
-        End If
-    Next i
-End Sub
-
 '递归创建文件夹
 Public Sub MkDirRecursive(folderName As String)
     MkDirRecursiveInternal folderName, folderName
 End Sub
-Private Sub MkDirRecursiveInternal(folderName As String, _
-    originalFolderName As String)
+Private Sub MkDirRecursiveInternal(folderName As String, originalFolderName As String)
     If folderName = "" Then
-        Err.Raise 32000, _
-            Description:="Failed to create folder: " & originalFolderName
+        Err.Raise 32000, Description:="Failed to create folder: " & originalFolderName
     End If
     Dim parentFolderName As String
     parentFolderName = GetDirectoryName(folderName)
@@ -117,7 +51,7 @@ Public Function ListFolders(folderPattern As String) As Variant()
     ListFolders = ListFiles_Internal(folderPattern, vbReadOnly Or vbHidden Or vbSystem Or vbDirectory)
 End Function
 
-'列举所有复核该规则的文件
+'列举所有符合该规则的文件
 Private Function ListFiles_Internal(filePattern As String, attrs As Long) As Variant()
     Dim filesList As New VBALib_List
     Dim folderName As String
@@ -143,29 +77,8 @@ Private Function ListFiles_Internal(filePattern As String, attrs As Long) As Var
     ListFiles_Internal = filesList.Items
 End Function
 
-Sub ListFiles(ByVal strPath As String, ByVal cellDestination As Range)
-    Dim counter As Integer
-    Dim File As String
-    strPath = checkFolder(strPath)
-    File = Dir$(strPath & Extention)
-    Do While Len(File)
-        File = Dir$
-        counter = counter + 1
-    Loop
-    If (counter = 0) Then Exit Sub
-    ReDim filesTab(counter - 1)
-    counter = 0
-    File = Dir$(strPath & Extention)
-    ' List the files and display them in the cells
-    Do While Len(File) And counter <= UBound(filesTab)
-        cellDestination.Offset(counter, 0) = File
-        cellDestination.Offset(counter, 1) = strPath & File
-        File = Dir$
-        counter = counter + 1
-    Loop
-End Sub
 
-'Example: ListFilesInFolder "C:\FolderName\", True
+'列出文件夹下所有文件: ListFilesInFolder "C:\FolderName\", True
 Sub ListFilesInFolder(ByVal SourceFolderName As String, Optional ByVal IncludeSubfolders As Boolean)
     On Error GoTo ExitSub
     Dim FSO As Object
@@ -213,12 +126,12 @@ Function checkFolder(ByVal strPath As String) As String
     checkFolder = strPath
 End Function
 
-' Description:  Check if folder path exists
-Public Function checkFolder(strFolderPath As String) As Boolean
+' 文件夹是否存在:  Check if folder path exists
+Public Function isFolderExist(strFolderPath As String) As Boolean
   If cEnableErrorHandling Then: On Error GoTo errHandler
   Dim fso As Scripting.FileSystemObject
   Set fso = New FileSystemObject
-  If fso.FolderExists(strFolderPath) <> 0 Then: checkFolder = True
+  If fso.FolderExists(strFolderPath) <> 0 Then: isFolderExist = True
 exitMe:
   Set fso = Nothing
   Exit Function
@@ -227,19 +140,7 @@ errHandler:
   Resume exitMe
 End Function
 
-Function folderExists(ByVal fullPath As String) As String
-    Dim fs
-    Set fs = CreateObject("Scripting.FileSystemObject")
-    folderExists = fs.folderExists(fullPath)
-End Function
-
-' Determines whether a folder with the given name exists.
-Public Function FolderExists(folderName As String) As Boolean
-    On Error Resume Next
-    FolderExists = ((GetAttr(folderName) And vbDirectory) = vbDirectory)
-End Function
-
-'Returns the selected folder path as a string value
+'打开选择文件夹并返回文件夹路径
 Function getFolder(Optional dialogTitle As String = vbNullString, _
                    Optional dialogButtonName As String = vbNullString, _
                    Optional dialogStartFolder As String = vbNullString, _
@@ -271,6 +172,7 @@ Function getFolder(Optional dialogTitle As String = vbNullString, _
   getFolder = CStr(folderSelection)
 End Function
 
+'列出子文件夹
 Sub ListFolder(sFolderPath As String, ByVal cellDestination As Range)
     Dim fs As New FileSystemObject
     Dim FSfolder As Folder
@@ -286,10 +188,12 @@ Sub ListFolder(sFolderPath As String, ByVal cellDestination As Range)
     Set FSfolder = Nothing
 End Sub
 
+'创建文件夹
 Function createFolder(ByVal fullPath As String) As Boolean
     If (folderExists(fullPath) = False) Then MkDir (fullPath)
 End Function
 
+'递归创建文件夹
 Function createDirs(ByVal fullPath As String) As String
     fullPath = checkFolder(fullPath)
     paths = Split(fullPath, "\")
@@ -414,6 +318,7 @@ Public Function GetTempPath() As String
     End If
 End Function
 
+'打开文件夹并返回文件夹路径
 Function GetOutputFolder(Optional startFolder As Variant = -1) As Variant
     Dim fldr As FileDialog
     Dim vItem As Variant
