@@ -5,8 +5,6 @@ process.env.BABEL_ENV = 'renderer'
 const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
-const config = require('../config/index.js')
-
 const BabiliWebpackPlugin = require('babili-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
@@ -121,7 +119,10 @@ let rendererConfig = {
   plugins: [
     new ExtractTextPlugin('styles.css'),
     new webpack.DefinePlugin({
-      'process.env': process.env.NODE_ENV === 'production' ? config.build.env : config.dev.env
+      'process.env': {
+            NODE_ENV: process.env.NODE_ENV,
+            BASE_API: '"https://easy-mock.com/mock/5950a2419adc231f356a6636/vue-admin"'
+          }
     }),
     new HtmlWebpackPlugin({
       filename: 'index.html',

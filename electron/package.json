@@ -20,7 +20,7 @@
     "build:darwin": "cross-env BUILD_TARGET=darwin node .electron-vue/build.js",
     "build:linux": "cross-env BUILD_TARGET=linux node .electron-vue/build.js",
     "build:mas": "cross-env BUILD_TARGET=mas node .electron-vue/build.js",
-    "build:win32": "cross-env BUILD_TARGET=win32 node .electron-vue/build.js",
+    "build:win32": "cross-env BUILD_TARGET=win32 node .electron-vue/build.js"
   },
   "build": {
     "productName": "electron-vue-admin",
