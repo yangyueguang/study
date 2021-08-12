@@ -4,10 +4,14 @@ import App from './App'
 import router from '@/utils/router'
 import store from '@/utils/store'
 import NProgress from 'nprogress'
+import api from '@/utils/api'
+import service from '@/utils/request'
 
 Vue.use(require('vue-electron'))
 Vue.use(ElementUI)
 Vue.prototype.$store = store;
+Vue.prototype.$http = service
+Vue.prototype.$api = api
 Vue.config.productionTip = false
 router.beforeEach((to, from, next) => {
   NProgress.start()

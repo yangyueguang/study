@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { login, logout, getInfo } from '@/utils/api'
-import { setToken, removeToken } from '@/utils/auth'
+import Cookies from 'js-cookie'
+const TokenKey = 'token'
 
 Vue.use(Vuex)
 const dd = {
@@ -35,48 +35,31 @@ const store = new Vuex.Store({
   actions: {
     Login({ commit }, userInfo) {
       const username = userInfo.username.trim()
-      return new Promise((resolve, reject) => {
-        login(username, userInfo.password).then(response => {
-          const data = response.data
-          setToken(data.token)
-          commit('login', data)
-          resolve()
-        }).catch(error => {
-          reject(error)
-        })
+      this.$http.post(this.$api.login, {username: username, password: userInfo.password}).then( r=>{
+        const data = r.data
+        Cookies.set(TokenKey, data.token)
+        commit('login', data)
+      }).catch(e => {
+        console.log(e)
       })
     },
     // 获取用户信息
     GetInfo({ commit, state }) {
-      return new Promise((resolve, reject) => {
-        getInfo(this.state.token).then(response => {
-          const data = response.data
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-          } else {
-            reject('getInfo: roles must be a non-null array !')
-          }
-          resolve(response)
-        }).catch(error => {
-          reject(error)
-        })
+      this.$http.get(this.$api.getInfo).then(r=>{
+        const data = r.data
       })
     },
     // 登出
     LogOut({ commit, state }) {
-      return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
-          commit('logout', '')
-          removeToken()
-          resolve()
-        }).catch(error => {
-          reject(error)
-        })
+      this.$http.post(this.$api.logout).then(r=>{
+        commit('logout', '')
+        Cookies.remove(TokenKey)
       })
     },
     // 前端 登出
     FedLogOut({ commit }) {
       return new Promise(resolve => {
-        removeToken()
+        Cookies.remove(TokenKey)
         commit('logout', '')
         resolve()
       })

@@ -37,7 +37,6 @@
 </template>
 
 <script>
-import { getList } from '@/utils/api'
 
 export default {
   data() {
@@ -62,7 +61,7 @@ export default {
   methods: {
     fetchData() {
       this.listLoading = true
-      getList(this.listQuery).then(response => {
+      this.$http.get(this.$api.tableList).then(response => {
         this.list = response.data.items
         this.listLoading = false
       })
