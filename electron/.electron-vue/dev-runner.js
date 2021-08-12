@@ -63,6 +63,7 @@ function startRenderer () {
       compiler,
       {
         contentBase: path.join(__dirname, '../'),
+        historyApiFallback: true,
         quiet: true,
         before (app, ctx) {
           app.use(hotMiddleware)
