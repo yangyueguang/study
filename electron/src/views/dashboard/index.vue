@@ -1,7 +1,7 @@
 <template>
-  <div class="dashboard-container">
-    <div class="dashboard-text">name:{{user.name}}</div>
-    <div class="dashboard-text">roles:<span v-for='role in user.roles' :key='role'>{{user.roles}}</span></div>
+  <div class="dashboard">
+    <div class="text">name:{{user.name}}</div>
+    <div class="text">roles:<span v-for='role in user.roles' :key='role'>{{role}}</span></div>
   </div>
 </template>
 
@@ -19,10 +19,8 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 .dashboard {
-  &-container {
-    margin: 30px;
-  }
-  &-text {
+  margin: 30px;
+  .text {
     font-size: 30px;
     line-height: 46px;
   }

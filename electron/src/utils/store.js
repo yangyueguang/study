@@ -13,10 +13,10 @@ const store = new Vuex.Store({
     sidebar: dd,
     device: 'desktop',
     user: {
-      token: '23',
-      name: '',
+      token: 'add',
+      name: 'zhangsna',
       avatar: '',
-      roles: []
+      roles: ['2', '2e', '3']
     }
   },
 

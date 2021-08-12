@@ -1,7 +1,18 @@
 <template>
   <el-menu class="navbar" mode="horizontal">
-    <hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
-    <breadcrumb></breadcrumb>
+    <div class="hamburger-container">
+      <i class="fa fa-bars hamburger" @click="toggleSideBar" :class="{'is-active':sidebar.opened}"></i>
+    </div>
+
+    <el-breadcrumb class="app-breadcrumb" separator="/">
+      <transition-group name="breadcrumb">
+        <el-breadcrumb-item v-for="(item,index)  in levelList" :key="item.path" v-if="item.meta.title">
+          <span v-if="item.redirect==='noredirect'" class="no-redirect">{{item.meta.title}}</span>
+          <router-link v-else :to="item.redirect||item.path">{{item.meta.title}}</router-link>
+        </el-breadcrumb-item>
+      </transition-group>
+    </el-breadcrumb>
+
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
         <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
@@ -22,13 +33,20 @@
 </template>
 
 <script>
-import Breadcrumb from '@/components/breadcrumb'
-import Hamburger from '@/components/humburger'
 
 export default {
-  components: {
-    Breadcrumb,
-    Hamburger
+  data(){
+    return {
+      levelList: []
+    }
+  },
+  created() {
+    let matched = this.$route.matched.filter(item => item.name)
+    const first = matched[0]
+    if (first && first.name !== 'dashboard') {
+      matched = [{ path: '/dashboard', meta: { title: 'Dashboard' }}].concat(matched)
+    }
+    this.levelList = matched
   },
   computed: {
     sidebar(){
@@ -61,6 +79,28 @@ export default {
     height: 50px;
     float: left;
     padding: 0 10px;
+    .hamburger {
+      display: inline-block;
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      transform: rotate(90deg);
+      transition: .38s;
+      transform-origin: 50% 50%;
+    }
+    .hamburger.is-active {
+      transform: rotate(0deg);
+    }
+  }
+  .app-breadcrumb.el-breadcrumb {
+    display: inline-block;
+    font-size: 14px;
+    line-height: 50px;
+    margin-left: 10px;
+    .no-redirect {
+      color: #97a8be;
+      cursor: text;
+    }
   }
   .screenfull {
     position: absolute;

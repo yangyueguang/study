@@ -10,7 +10,6 @@ export default {
 }
 </script>
 <style lang="scss">
-  //@import 'CSS:nprogress/nprogress.css';
-  //@import 'CSS:element-ui/lib/theme-chalk/index.css';
-  @import 'src/utils/uni'; // 全局自定义的css样式
+  @import 'static/css/font-awesome.css';
+  @import 'static/css/uni'; // 全局自定义的css样式
 </style>
