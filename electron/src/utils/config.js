@@ -9,4 +9,7 @@ export default {
         upper: /^[A-Z]+$/,
         letter: /^[A-Za-z]+$/
     },
+    assets:{
+        head: 'static/face.png'
+    }
 }

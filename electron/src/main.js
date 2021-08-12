@@ -7,6 +7,7 @@ import NProgress from 'nprogress'
 import api from '@/utils/api'
 import service from '@/utils/request'
 import tools from '@/utils/tools'
+import config from '@/utils/config'
 
 Vue.use(require('vue-electron'))
 Vue.use(ElementUI)
@@ -14,6 +15,7 @@ Vue.prototype.$store = store;
 Vue.prototype.$http = service
 Vue.prototype.$api = api
 Vue.prototype.$tools = tools
+Vue.prototype.$config = config
 Vue.config.productionTip = false
 String.prototype.int = function () {
   return parseInt(this, 10)

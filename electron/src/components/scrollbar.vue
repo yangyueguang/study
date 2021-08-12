@@ -42,8 +42,7 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import '../static/css/uni';
-
+@import "static/css/uni";
 .scroll-container {
   position: relative;
   width: 100%;

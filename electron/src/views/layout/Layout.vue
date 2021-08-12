@@ -25,7 +25,7 @@ export default {
   watch: {
     $route(route) {
       if (this.device === 'mobile') {
-        store.dispatch('CloseSideBar', { withoutAnimation: false })
+        this.$store.dispatch('CloseSideBar', { withoutAnimation: false })
       }
     }
   },
@@ -35,8 +35,8 @@ export default {
   mounted() {
     const isMobile = this.isMobile()
     if (isMobile) {
-      store.dispatch('ToggleDevice', 'mobile')
-      store.dispatch('CloseSideBar', { withoutAnimation: true })
+      this.$store.dispatch('ToggleDevice', 'mobile')
+      this.$store.dispatch('CloseSideBar', { withoutAnimation: true })
     }
   },
   computed: {
@@ -56,10 +56,10 @@ export default {
     resizeHandler() {
       if (!document.hidden) {
         const isMobile = this.isMobile()
-        store.dispatch('ToggleDevice', isMobile ? 'mobile' : 'desktop')
+        this.$store.dispatch('ToggleDevice', isMobile ? 'mobile' : 'desktop')
 
         if (isMobile) {
-          store.dispatch('CloseSideBar', { withoutAnimation: true })
+          this.$store.dispatch('CloseSideBar', { withoutAnimation: true })
         }
       }
     }
@@ -67,8 +67,8 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
-  @import "../../static/css/uni";
+<style lang="scss">
+@import "static/css/uni";
   .app-wrapper {
     @include clearfix;
     position: relative;
