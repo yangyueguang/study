@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     toggleSideBar() {
-      this.$router.push('/404')
+      this.$router.push('/flyicons')
       // this.$store.state.sidebar.opened = !this.$store.state.sidebar.opened
     },
     logout() {

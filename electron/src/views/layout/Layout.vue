@@ -33,6 +33,7 @@ export default {
     window.addEventListener('resize', this.resizeHandler)
   },
   mounted() {
+    console.log('断点')
     const isMobile = this.isMobile()
     if (isMobile) {
       this.$store.dispatch('ToggleDevice', 'mobile')
