@@ -65,7 +65,6 @@ const store = new Vuex.Store({
       })
     },
     CloseSideBar({ commit }, { withoutAnimation }) {
-      debugger
       this.state.sidebar.opened = false
       this.state.sidebar.withoutAnimation = withoutAnimation
     },
@@ -74,4 +73,15 @@ const store = new Vuex.Store({
     }
   }
 })
+
+store.set = (key, value) => {
+  localStorage.setItem(key, value)
+}
+store.get = (key) => {
+  localStorage.getItem(key)
+}
+store.pop = (key) => {
+  localStorage.removeItem(key)
+}
+
 export default store
