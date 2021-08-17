@@ -58,8 +58,7 @@ export default {
   },
   methods: {
     toggleSideBar() {
-      this.$router.push('/flyicons')
-      // this.$store.state.sidebar.opened = !this.$store.state.sidebar.opened
+      this.$store.state.sidebar.opened = !this.$store.state.sidebar.opened
     },
     logout() {
       this.$store.dispatch('LogOut').then(() => {

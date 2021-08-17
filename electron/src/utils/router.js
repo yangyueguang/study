@@ -15,7 +15,6 @@ export const constantRouterMap = [
     }]
   },
   { path: '/login', component: () => import('@/views/public/login'), hidden: true },
-  { path: '/flyicons', component: () => import('@/views/public/flyicons'), hidden: true },
   { path: '/404', component: () => import('@/views/public/404'), hidden: true },
   {
     path: '/example',
