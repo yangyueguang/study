@@ -1,4 +1,4 @@
-Attribute VB_Name = "LIB_Workbook"
+Attribute VB_Name = "library"
 
 Function FindLastCol(ByVal Row As Long) As Long
     With ActiveSheet

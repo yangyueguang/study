@@ -1,3 +1,4 @@
+Attribute VB_Name = "view"
 Option Explicit
 Sub NowToolbar()
     Dim arr As Variant

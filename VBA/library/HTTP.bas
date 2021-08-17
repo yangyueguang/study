@@ -1,4 +1,4 @@
-Attribute VB_Name = "WebHelpers"
+Attribute VB_Name = "http"
 Option Explicit
 '使用字典需要在工具里添加引用：Microsoft Scripting Runtime==============================这句话是防止网络请求回来字符乱码的事情
 Private Declare PtrSafe Function MultiByteToWideChar Lib "kernel32" (ByVal CodePage As Long, ByVal dwFlags As Long, ByVal lpMultiByteStr As Long, ByVal cchMultiByte As Long, ByVal lpWideCharStr As Long, ByVal cchWideChar As Long) As Long

@@ -1,16 +1,21 @@
-var express = require('express');
-var port = process.env.PORT || 8080;
-var app = express();
-var path = require('path');
-
-app.use(express.static(path.resolve(__dirname, 'dist')));
-
-app.get('*', function (req, res) {
-    res.sendFile(__dirname + '/dist/index.html')
-})
-
-var server = app.listen(port, function () {
-    var host = server.address().address;
-    var port = server.address().port;
-    console.log('listening at http://%s:%s start is success', host, port);
-});
+var http = require('http');
+var fs = require('fs');
+var url = require('url');
+// 创建服务器
+http.createServer( function (request, response) {
+    var pathname = url.parse(request.url).pathname;
+    console.log("Request for " + pathname + " received.");
+    // 从文件系统中读取请求的文件内容
+    fs.readFile(pathname.substr(1), function (err, data) {
+        if (err) {
+            console.log(err);
+            response.writeHead(404, {'Content-Type': 'text/html'});
+        }else{
+            response.writeHead(200, {'Content-Type': 'text/html'});
+            response.write(data.toString());
+        }
+        response.end();
+    });
+}).listen(8080);
+// 控制台会输出以下信息
+console.log('Server running at http://127.0.0.1:8080/');

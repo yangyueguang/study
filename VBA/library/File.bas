@@ -1,4 +1,4 @@
-Attribute VB_Name = "LIB_File"
+Attribute VB_Name = "File"
 Option Explicit
 Public Const ZipTool_local_path = "\7za\7za"
 Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)

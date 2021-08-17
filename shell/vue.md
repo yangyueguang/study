@@ -22,7 +22,7 @@ yarn start
 ```
 
 ## 部署方式
-`sh deploy.sh`或者拷贝dist文件夹和server.js文件以及nginx_config文件夹配置好nginx之后执行`node server.js`
+`sh deploy.sh`或者拷贝dist文件夹和server.js文件以及nginx_config文件夹配置好nginx之后执行`node express.js`
 
 
 

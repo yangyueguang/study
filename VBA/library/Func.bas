@@ -1,4 +1,4 @@
-Attribute VB_Name = "lib_func"
+Attribute VB_Name = "func"
 Public Const Pi = 3.14159265359
 Option Explicit
 

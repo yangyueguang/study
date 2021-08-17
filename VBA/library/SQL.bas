@@ -1,3 +1,4 @@
+Attribute VB_Name = "SQL"
 '引用Microsoft ActiveX Data Objects 2.x Library
 Dim cnn As ADODB.Connection '声明模块级变量，启动窗体后不必重复连接数据库
 Dim rs As ADODB.Recordset
