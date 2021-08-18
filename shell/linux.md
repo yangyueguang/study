@@ -68,7 +68,7 @@ linux 下的压缩命令有 tar、gzip、gunzip、bzip2、bunzip2、 compress、
 which
 whereis
 whatis
-
+查看系统信息： system_profiler SPNVMeDataType SPNetworkLocationDataType SPHardwareDataType
 ssh 免密登录：ssh-copy-id remote_username@server_ip_address
 19 # 下边是另外一种判断root 用户的方法: 20
 ```bash
