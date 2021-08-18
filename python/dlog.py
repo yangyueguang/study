@@ -3,7 +3,8 @@ import logging
 import colorama
 import threading
 import logging.handlers
-from app.config import LOG_PATH, IS_DEBUG
+LOG_PATH = 'root.log'
+IS_DEBUG = True
 
 
 class LogFormatter(logging.Formatter):

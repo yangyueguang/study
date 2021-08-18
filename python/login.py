@@ -14,6 +14,548 @@ import requests
 import base64
 from io import BytesIO
 from sys import version_info
+import time
+from io import BytesIO
+from PIL import Image
+from selenium import webdriver
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+EMAIL = '2829969299@qq.com'
+PASSWORD = '123456'
+BORDER = 6
+INIT_LEFT = 60
+import pytesseract
+from PIL import Image
+
+# 图片降噪处理 standard:阀值
+def convert_Image(img, standard=127.5):
+    image = img.convert('L')
+    pixels = image.load()
+    for x in range(image.width):
+        for y in range(image.height):
+            if pixels[x, y] > standard:
+                pixels[x, y] = 255
+            else:
+                pixels[x, y] = 0
+    image.show()
+    return image
+
+def main():
+    base_img = Image.open('vcode.jpg')
+    img = convert_Image(base_img)
+    num_conf = '--psm 6 --oem 3 -c tessedit_char_whitelist=0123456789'
+    str_conf = ''
+    textCode = pytesseract.image_to_string(img, lang='eng', config=str_conf)
+    print('识别的结果：', textCode)
+
+
+class CrackGeetest():
+    def __init__(self):
+        self.url = 'http://ha.gsxt.gov.cn/index.html'
+        self.browser = webdriver.Chrome()
+        self.wait = WebDriverWait(self.browser, 20)
+        #self.email = EMAIL
+        #self.password = PASSWORD
+
+    def __del__(self):
+        self.browser.close()
+
+    def get_geetest_button(self):
+        """
+        获取初始验证按钮
+        :return:
+        """
+        button = self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'geetest_slider_button')))
+        return button
+
+    def get_position(self):
+        """
+        获取验证码位置
+        :return: 验证码位置元组
+        """
+        img = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'geetest_canvas_slice geetest_absolute')))
+        time.sleep(2)
+        location = img.location
+        size = img.size
+        top, bottom, left, right = location['y'], location['y'] + size['height'], location['x'], location['x'] + size[
+            'width']
+        return (top, bottom, left, right)
+
+    def get_screenshot(self):
+        """
+        获取网页截图
+        :return: 截图对象
+        """
+        screenshot = self.browser.get_screenshot_as_png()
+        screenshot = Image.open(BytesIO(screenshot))
+        return screenshot
+
+    def get_slider(self):
+        """
+        获取滑块
+        :return: 滑块对象
+        """
+        slider = self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'geetest_slider_button')))
+        return slider
+
+    def get_geetest_image(self, name='captcha.png'):
+        """
+        获取验证码图片
+        :return: 图片对象
+        """
+        top, bottom, left, right = self.get_position()
+        print('验证码位置', top, bottom, left, right)
+        screenshot = self.get_screenshot()
+        captcha = screenshot.crop((left, top, right, bottom))
+        captcha.save(name)
+        return captcha
+
+    def open(self):
+        """
+        打开网页输入用户名密码
+        :return: None
+        """
+        self.browser.get(self.url)
+        # email = self.wait.until(EC.presence_of_element_located((By.ID, 'email')))
+        # password = self.wait.until(EC.presence_of_element_located((By.ID, 'password')))
+        # email.send_keys(self.email)
+        # password.send_keys(self.password)
+        keyword = self.wait.until(EC.presence_of_element_located((By.ID, 'keyword')))
+        keyword.send_keys("河南镇平农村商业银行")
+        submit = self.wait.until(EC.element_to_be_clickable((By.ID, 'btn_query')))
+
+    def get_gap(self, image1, image2):
+        """
+        获取缺口偏移量
+        :param image1: 不带缺口图片
+        :param image2: 带缺口图片
+        :return:
+        """
+        left = 60
+        for i in range(left, image1.size[0]):
+            for j in range(image1.size[1]):
+                if not self.is_pixel_equal(image1, image2, i, j):
+                    left = i
+                    return left
+        return left
+
+    def is_pixel_equal(self, image1, image2, x, y):
+        """
+        判断两个像素是否相同
+        :param image1: 图片1
+        :param image2: 图片2
+        :param x: 位置x
+        :param y: 位置y
+        :return: 像素是否相同
+        """
+        # 取两个图片的像素点
+        pixel1 = image1.load()[x, y]
+        pixel2 = image2.load()[x, y]
+        threshold = 60
+        if abs(pixel1[0] - pixel2[0]) < threshold and abs(pixel1[1] - pixel2[1]) < threshold and abs(
+                pixel1[2] - pixel2[2]) < threshold:
+            return True
+        else:
+            return False
+
+    def get_track(self, distance):
+        """
+        根据偏移量获取移动轨迹
+        :param distance: 偏移量
+        :return: 移动轨迹
+        """
+        # 移动轨迹
+        track = []
+        # 当前位移
+        current = 0
+        # 减速阈值
+        mid = distance * 4 / 5
+        # 计算间隔
+        t = 0.2
+        # 初速度
+        v = 0
+
+        while current < distance:
+            if current < mid:
+                # 加速度为正2
+                a = 2
+            else:
+                # 加速度为负3
+                a = -3
+            # 初速度v0
+            v0 = v
+            # 当前速度v = v0 + at
+            v = v0 + a * t
+            # 移动距离x = v0t + 1/2 * a * t^2
+            move = v0 * t + 1 / 2 * a * t * t
+            # 当前位移
+            current += move
+            # 加入轨迹
+            track.append(round(move))
+        return track
+
+    def move_to_gap(self, slider, track):
+        """
+        拖动滑块到缺口处
+        :param slider: 滑块
+        :param track: 轨迹
+        :return:
+        """
+        ActionChains(self.browser).click_and_hold(slider).perform()
+        for x in track:
+            ActionChains(self.browser).move_by_offset(xoffset=x, yoffset=0).perform()
+        time.sleep(0.5)
+        ActionChains(self.browser).release().perform()
+
+    def login(self):
+        """
+        登录
+        :return: None
+        """
+        submit = self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'login-btn')))
+        submit.click()
+        time.sleep(10)
+        print('登录成功')
+
+    def crack(self):
+        # 输入用户名密码
+        self.open()
+
+        # 点击验证按钮
+        button = self.get_geetest_button()
+        button.click()
+        # 获取验证码图片
+        image1 = self.get_geetest_image('captcha1.png')
+        # 点按呼出缺口
+        slider = self.get_slider()
+        slider.click()
+        # 获取带缺口的验证码图片
+        image2 = self.get_geetest_image('captcha2.png')
+        # 获取缺口位置
+        gap = self.get_gap(image1, image2)
+        print('缺口位置', gap)
+        # 减去缺口位移
+        gap -= BORDER
+        # 获取移动轨迹
+        track = self.get_track(gap)
+        print('滑动轨迹', track)
+        # 拖动滑块
+        self.move_to_gap(slider, track)
+
+        success = self.wait.until(
+            EC.text_to_be_present_in_element((By.CLASS_NAME, 'geetest_success_radar_tip_content'), '验证成功'))
+        print(success)
+
+        # 失败后重试
+        if not success:
+            self.crack()
+        else:
+            self.login()
+
+
+if __name__ == '__main__':
+    crack = CrackGeetest()
+    crack.crack()
+
+#
+# '''
+# from selenium.webdriver.support import expected_conditions as EC
+# from selenium import webdriver
+# from selenium.webdriver.support.wait import WebDriverWait
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver import ActionChains
+# from PIL import Image
+# from io import BytesIO
+# import time
+#
+# BORDER = 6
+#
+# class CrackGeetest():
+#     def __init__(self):
+#         self.url = 'https://www.geetest.com/type/'
+#         self.browser = webdriver.Chrome()
+#         self.wait = WebDriverWait(self.browser,10)
+#
+#     def open(self):
+#         '''
+#         打开网页
+#         :return None
+#         '''
+#         self.browser.get(self.url)
+#
+#     def close(self):
+#         '''
+#         关闭网页
+#         :return None
+#         '''
+#         self.browser.close()
+#         self.browser.quit()
+#
+#     def change_to_slide(self):
+#         '''
+#         切换为滑动认证
+#         :return 滑动选项对象
+#         '''
+#         huadong = self.wait.until(
+#             EC.element_to_be_clickable((By.CSS_SELECTOR,'.products-content ul > li:nth-child(2)'))
+#         )
+#         return huadong
+#
+#     def get_geetest_button(self):
+#         '''
+#         获取初始认证按钮
+#         :return 按钮对象
+#         '''
+#         button = self.wait.until(
+#             EC.element_to_be_clickable((By.CSS_SELECTOR,'.geetest_radar_tip'))
+#         )
+#         return button
+#
+#     def wait_pic(self):
+#         '''
+#         等待验证图片加载完成
+#         :return None
+#         '''
+#         self.wait.until(
+#             EC.presence_of_element_located((By.CSS_SELECTOR,'.geetest_popup_wrap'))
+#         )
+#
+#     def get_screenshot(self):
+#         """
+#         获取网页截图
+#         :return: 截图对象
+#         """
+#         screenshot = self.browser.get_screenshot_as_png()
+#         screenshot = Image.open(BytesIO(screenshot))
+#         return screenshot
+#
+#     def get_position(self):
+#         '''
+#         获取验证码位置
+#         :return: 位置元组
+#         '''
+#         img = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME,'geetest_canvas_bg geetest_absolute')))
+#         time.sleep(2)
+#         location = img.location
+#         size = img.size
+#         top, bottom = location['y'], location['y'] + size['height']
+#         left, right = location['x'], location['x'] + size['width']
+#         return (top, bottom, left, right)
+#
+#     def get_slider(self):
+#         '''
+#         获取滑块
+#         :return: 滑块对象
+#         '''
+#         slider = self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME,'geetest_slider_button')))
+#         return slider
+#
+#     def get_geetest_image(self,name='captcha.png'):
+#         '''
+#         获取验证码图片
+#         :return: 图片对象
+#         '''
+#         top, bottom, left, right = self.get_position()
+#         print('验证码位置',top, bottom, left, right)
+#         screenshot = self.get_screenshot()
+#         captcha = screenshot.crop((left, top, right, bottom))
+#         captcha.save(name)
+#         return captcha
+#
+#     def delete_style(self):
+#         '''
+#         执行js脚本，获取无滑块图
+#         :return None
+#         '''
+#         js = 'document.querySelectorAll("canvas")[2].style=""'
+#         self.browser.execute_script(js)
+#
+#
+#
+#     def is_pixel_equal(self, img1, img2, x, y):
+#         '''
+#         判断两个像素是否相同
+#         :param img1: 不带缺口图片
+#         :param img2: 带缺口图
+#         :param x: 位置x
+#         :param y: 位置y
+#         :return: 像素是否相同
+#         '''
+#         # 取两个图片的像素点
+#         pix1 = img1.load()[x, y]
+#         pix2 = img2.load()[x, y]
+#         threshold = 60
+#         if abs(pix1[0] - pix2[0]) < threshold \
+#         and abs(pix1[1] - pix2[1]) < threshold \
+#         and abs(pix1[2] - pix2[2]) < threshold:
+#             return True
+#         else:
+#             return False
+#
+#
+#     def get_gap(self, img1, img2):
+#         '''
+#         获取缺口偏移量
+#         :param img1: 不带缺口图片
+#         :param img2: 带缺口图
+#         :return 缺口位置
+#         '''
+#         left = 60
+#         for i in range(left, img1.size[0]):
+#             for j in range(img1.size[1]):
+#                 if not self.is_pixel_equal(img1, img2, i, j):
+#                     left = i
+#                     return left
+#         return left
+#
+#     def get_track(self, distance):
+#         '''
+#         根据偏移量获取移动轨迹
+#         :param distance: 偏移量
+#         :return: 移动轨迹
+#         '''
+#         #移动轨迹
+#         track = []
+#         #当前位移
+#         current = 0
+#         #减速阈值
+#         mid = distance * 3 / 5
+#         #计算间隔
+#         t = 0.2
+#         #初速度
+#         v = 0
+#         #滑超过过一段距离
+#         distance += 15
+#         while current < distance:
+#             if current < mid:
+#                 #加速度为正
+#                 a = 1
+#             else:
+#                 #加速度为负
+#                 a = -0.5
+#             #初速度 v0
+#             v0 = v
+#             #当前速度 v
+#             v = v0 + a * t
+#             #移动距离 move-->x
+#             move = v0 * t + 1 / 2 * a * t * t
+#             #当前位移
+#             current += move
+#             #加入轨迹
+#             track.append(round(move))
+#         return track
+#     # def get_track(self, distance):
+#     #     """
+#     #     根据偏移量获取移动轨迹
+#     #     :param distance: 偏移量
+#     #     :return: 移动轨迹
+#     #     """
+#     #     # 移动轨迹
+#     #     track = []
+#     #     # 当前位移
+#     #     current = 0
+#     #     # 减速阈值
+#     #     mid = distance * 4 / 5
+#     #     # 计算间隔
+#     #     t = 0.2
+#     #     # 初速度
+#     #     v = 0
+#
+#     #     while current < distance:
+#     #         if current < mid:
+#     #             # 加速度为正2
+#     #             a = 2
+#     #         else:
+#     #             # 加速度为负3
+#     #             a = -3
+#     #         # 初速度v0
+#     #         v0 = v
+#     #         # 当前速度v = v0 + at
+#     #         v = v0 + a * t
+#     #         # 移动距离x = v0t + 1/2 * a * t^2
+#     #         move = v0 * t + 1 / 2 * a * t * t
+#     #         # 当前位移
+#     #         current += move
+#     #         # 加入轨迹
+#     #         track.append(round(move))
+#     #     return track
+#
+#     def shake_mouse(self):
+#         '''
+#         模拟人手释放鼠标时的抖动
+#         :return: None
+#         '''
+#         ActionChains(self.browser).move_by_offset(xoffset=-3, yoffset=0).perform()
+#         ActionChains(self.browser).move_by_offset(xoffset=3, yoffset=0).perform()
+#
+#     def move_to_gap(self, slider, tracks):
+#         '''
+#         拖动滑块到缺口处
+#         :param slider: 滑块
+#         :param tracks: 轨迹
+#         :return
+#         '''
+#         back_tracks = [-1, -1, -2, -2, -3, -2, -2, -1, -1]
+#         ActionChains(self.browser).click_and_hold(slider).perform()
+#         #正向
+#         for x in tracks:
+#             ActionChains(self.browser).move_by_offset(xoffset=x, yoffset=0).perform()
+#         time.sleep(0.5)
+#         #逆向
+#         for x in back_tracks:
+#             ActionChains(self.browser).move_by_offset(xoffset=x, yoffset=0).perform()
+#         #模拟抖动
+#         self.shake_mouse()
+#         time.sleep(0.5)
+#         ActionChains(self.browser).release().perform()
+#
+#
+#     def crack(self):
+#         try:
+#             #打开网页
+#             self.open()
+#             #转换验证方式，点击认证按钮
+#             s_button = self.change_to_slide()
+#             time.sleep(1)
+#             s_button.click()
+#             g_button = self.get_geetest_button()
+#             g_button.click()
+#             #确认图片加载完成
+#             self.wait_pic()
+#             #获取滑块
+#             slider = self.get_slider()
+#             print(111)
+#             #获取带缺口的验证码图片
+#             image1 = self.get_geetest_image('captcha1.png')
+#             image1.show()
+#             self.delete_style()
+#             image2 = self.get_geetest_image('captcha2.png')
+#             image1.show()
+#             gap = self.get_gap(image1,image2)
+#             print('缺口位置',gap)
+#             gap -= BORDER
+#             track = self.get_track(gap)
+#             self.move_to_gap(slider, track)
+#             success =  self.wait.until(
+#                 EC.text_to_be_present_in_element((By.CLASS_NAME,'geetest_success_radar_tip_content'),'验证成功')
+#             )
+#             print(success)
+#             time.sleep(5)
+#             self.close()
+#         except:
+#             #print'repr(e):\t', repr(e)
+#             print('Failed-Retry')
+#             self.crack()
+#
+#
+#
+# if __name__ == '__main__':
+#     crack = CrackGeetest()
+#     crack.crack()
+    '''
 
 
 

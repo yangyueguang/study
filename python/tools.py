@@ -4,10 +4,16 @@ import requests
 import numpy as np
 import pandas as pd
 import pymysql.cursors
+import aiohttp
 
+def verify_proxy(self, proxy):
+    with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
+        res = session.get('http://www.baidu.com', proxy=f'http://{proxy}', timeout=15, allow_redirects=False)
+        return res.status == 200
 
 class Work(object):
     def run(self, excel_path):
+        headers = []
         file_paths = [os.path.join(path, file_name) for task_id in self.task_ids for path, dir_list, file_list in
                      os.walk("{}/{}/".format(self.path, task_id)) for
                      file_name in file_list if file_name.endswith('pdf')]

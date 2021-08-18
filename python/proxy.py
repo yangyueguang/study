@@ -19,7 +19,7 @@ from mitmproxy.tools.dump import DumpMaster
 
 class Joker:
 
-    def request(self,flow: mitmproxy.http.HTTPFlow):
+    def request(self, flow: mitmproxy.http.HTTPFlow):
         # 拦截请求
         url = flow.request.url
         if "sns-img-hw.xhscdn.com" in url or "img.xiaohongshu.com" in url:
@@ -44,7 +44,7 @@ class Joker:
         #     print("%-20s: %s" % (k.upper(), v))
     """
 
-    def response(self,flow: mitmproxy.http.HTTPFlow):
+    def response(self, flow: mitmproxy.http.HTTPFlow):
         url_1 = 'https://www.xiaohongshu.com/api/sns/v5/note/'
         url_2 = 'https://www.xiaohongshu.com/api/sns/v9/search/notes?'
         if flow.request.url.startswith(url_1):

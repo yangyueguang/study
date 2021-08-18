@@ -5,39 +5,29 @@ import time
 
 
 class Tail(object):
-    def __init__(self, tailed_file, func):
-        self.check_file_validity(tailed_file)
-        self.tailed_file = tailed_file
+    def __init__(self, file_name, func):
+        if not os.access(file_name, os.F_OK):
+            raise Exception(f'File {file_name} does not exist')
+        if not os.access(file_name, os.R_OK):
+            raise Exception(f'File {file_name} not readable')
+        if os.path.isdir(file_name):
+            raise Exception(f'File {file_name} is a directory')
+
+        self.file_name = file_name
         self.callback = func if func else sys.stdout.write
 
     def follow(self, s=1):
-        with open(self.tailed_file) as file_:
-            file_.seek(0, 2)
+        with open(self.file_name) as f:
+            f.seek(0, 2)
             while True:
-                curr_position = file_.tell()
-                line = file_.readline()
+                curr_position = f.tell()
+                line = f.readline()
                 if not line:
-                    file_.seek(curr_position)
+                    f.seek(curr_position)
                     time.sleep(s)
                 else:
                     self.callback(line)
 
-    def check_file_validity(self, file_):
-        ''' Check whether the a given file exists, readable and is a file '''
-        if not os.access(file_, os.F_OK):
-            raise TailError("File '%s' does not exist" % (file_))
-        if not os.access(file_, os.R_OK):
-            raise TailError("File '%s' not readable" % (file_))
-        if os.path.isdir(file_):
-            raise TailError("File '%s' is a directory" % (file_))
-
-
-class TailError(Exception):
-    def __init__(self, msg):
-        self.message = msg
-
-    def __str__(self):
-        return self.message
 
 
 '''test

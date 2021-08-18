@@ -24,7 +24,6 @@ class ImageElement(WorkbookMixinElement):
                     self.setAttribute('xhtml:src', f'xap:markers/{i}/{j}')
 
 
-
 class Mind(object):
     def __init__(self, name):
         super(Mind, self).__init__()
