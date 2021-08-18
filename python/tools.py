@@ -6,10 +6,12 @@ import pandas as pd
 import pymysql.cursors
 import aiohttp
 
-def verify_proxy(self, proxy):
+
+def verify_proxy(proxy):
     with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
         res = session.get('http://www.baidu.com', proxy=f'http://{proxy}', timeout=15, allow_redirects=False)
         return res.status == 200
+
 
 class Work(object):
     def run(self, excel_path):
