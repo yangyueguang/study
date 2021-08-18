@@ -1,7 +1,3 @@
-# python
-## 常用库
-- [wechat-sdk](https://github.com/kehao95/wechat-python-sdk)微信公众平台Python开发包 
-
 ## Tornado
 ```
 import tornado.web

@@ -13,6 +13,7 @@
 9. [pypinyin](https://github.com/mozillazg/python-pinyin) 汉字拼音转换工具
 10. [python-box](https://github.com/cdgriffith/Box) 把字典转换成可以用点语法调用的方式。
 11. [pywebview](https://github.com/r0x0r/pywebview/) [使用说明](https://pywebview.flowrl.com/examples/) 用python构建web界面。
+12. [wechatpy](https://github.com/wechatpy/wechatpy)微信开发包
 
 
 
