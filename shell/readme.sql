@@ -106,12 +106,7 @@ mysql	insert update delete select
 redis	set	set	del	get
 mongodb	insert	update	remove	find,aggregate
 
-
-
-
-
 mysql
-
 create database Student charset=utf8;
 drop database Student
 show databases;
@@ -145,14 +140,8 @@ delete from Student where ...;
 update ....
 mysqldump >
 mysql <
-
-
-
 select * from stu where gender=1 and (name like 'abc%' or name like 'def%')
-
 distinct
-
-
 create table sco(
 id int not null auto_increment primary key,
 stu_id int,
@@ -185,13 +174,6 @@ group by name
 sub.title->sub
 avg(),score->sco
 sub.id=sco.sub_id
-
-
-
-stu
-sub
-sco
-
 
 select * from areas where title='abc'
 
@@ -228,9 +210,6 @@ sha1()
 update()
 hexdigest()
 
-
-
-
 pip list
 
 Connection:MySQLdb.connect(),cursor(),commit(),rollback(),close()
@@ -242,13 +221,9 @@ list
 set
 zset
 
-
-
 If key already exists and is a string, this command appends the value at the end of the string. If key does not exist it is created and set as an empty string, so APPEND will be similar to SET in this special case.
 
 ----------------------------------------
-
-
 create table stu(
     -> id int not null primary key auto_increment,
     -> name varchar(10) not null,
@@ -331,12 +306,3 @@ hash
 list
 set
 zset
-
-
-
-
-
-
-
-
-

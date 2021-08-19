@@ -18,6 +18,7 @@ import gevent
 import requests
 import getopt
 import aiohttp
+import subprocess
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -54,6 +55,37 @@ def sys_params():
             print('file', arg)
         elif opt in ("-m", "--message"):
             print('message', arg)
+
+
+def _get_cmd_return_code(cmd):
+    _print(cmd)
+    sys.stdout.flush()
+    sys.stderr.flush()
+    return_code = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, shell=True).wait()
+    return return_code
+
+
+def _get_cmd_output(cmd):
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    output_lines = []
+    while process.poll() is None:
+        line = process.stdout.readline()
+        line = line.strip()
+        if line:
+            output_lines.append(line)
+    return_code = process.returncode
+    return output_lines, return_code
+
+
+def do_with_output(cmd):
+    return subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].decode('utf8')
+
+
+def _print(content, is_green: bool=True):
+    if is_green:
+        print('\033[1;32m{}\033[0m'.format(content))
+    else:
+        print('\033[1;31m{}\033[0m'.format(content))
 
 
 '''test
@@ -226,6 +258,22 @@ def rich_excel(excel_path):
             if column > 0 and (column - 1) % 4 in [2, 3] and vv < 1:
                 sheet.write(row + 1, column, vv, bad_format)
     writer.save()
+
+
+class Dict(dict):
+    def __init__(self, sdict=None):
+        super(dict, self).__init__()
+        if sdict is not None and isinstance(sdict, dict):
+            for sk, sv in sdict.items():
+                if isinstance(sv, dict):
+                    self[sk] = Dict(sv)
+                else:
+                    self[sk] = sv
+        else:
+            return sdict
+
+    def __getattr__(self, name):
+        return None if name not in self else self[name]
 
 
 class TemporaryDirectory(object):
