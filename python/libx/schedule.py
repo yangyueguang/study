@@ -51,6 +51,12 @@ def picture_reply(msg):
 def qrCallback(uuid, status, qrcode):
     if status == '0':
         Image.open(qrcode)
+        # with open('qrcode.jpg', 'wb') as f:
+        #     f.write(qrcode)
+        #     f.close()
+        # import subprocess
+        # subprocess.call(['open', 'qrcode.jpg'])
+
     elif status == '200':
         print('login success')
 

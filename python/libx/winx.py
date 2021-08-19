@@ -1,9 +1,4 @@
 #coding:utf-8
-'''
-auther: Super
-wechat: 2829969299
-use for windows control
-'''
 import json
 from time import sleep
 from rpa import win32
@@ -95,6 +90,7 @@ class Window(object):
             self.title = self.obj
         self.timeout = timeout
         self.title_class = title_class
+
     def _valid(self, obj):
         if obj != 0:
             self.obj = obj

@@ -5,6 +5,10 @@ import socket
 from multiprocessing import Process
 
 
+def say_haha(env, start_response):
+    return "hello haha"
+
+
 class Application(object):
     def __init__(self, urls, static_dir="static"):
         self.urls = urls
@@ -14,54 +18,17 @@ class Application(object):
         path = env.get("PATH_INFO", "/")
         if path.startswith("/static"):
             file_name = path[7:]
-            try:
-                file = open(self.static_dir + file_name, "rb")
-            except IOError:
-                status = "404 Not Found"
-                headers = []
-                start_response(status, headers)
-                return "not found"
-            else:
-                file_data = file.read()
-                file.close()
-                status = "200 OK"
-                headers = []
-                start_response(status, headers)
-                return file_data.decode("utf-8")
-
+            file = open(self.static_dir + file_name, "rb")
+            file_data = file.read()
+            file.close()
+            status = "200 OK"
+            start_response(status, [])
+            return file_data.decode("utf-8")
         for url, handler in self.urls:
             if path == url:
                 return handler(env, start_response)
-        status = "404 Not Found"
-        headers = []
-        start_response(status, headers)
         return "not found"
 
-
-def show_ctime(env, start_response):
-    status = "200 OK"
-    headers = [
-        ("Content-Type", "text/plain")
-    ]
-    start_response(status, headers)
-    return time.ctime()
-
-
-def say_hello(env, start_response):
-    status = "200 OK"
-    headers = [
-        ("Content-Type", "text/plain")
-    ]
-    start_response(status, headers)
-    return "hello itcast"
-
-def say_haha(env, start_response):
-    status = "200 OK"
-    headers = [
-        ("Content-Type", "text/plain")
-    ]
-    start_response(status, headers)
-    return "hello haha"
 
 class HTTPServer(object):
     def __init__(self, application):
@@ -108,20 +75,9 @@ class HTTPServer(object):
         self.server_socket.bind(("", port))
 
 
-def main():
-    urls = [
-            ("/", show_ctime),
-            ("/ctime", show_ctime),
-            ("/sayhello", say_hello),
-            ("/sayhaha", say_haha),
-        ]
-    app = Application(urls, './html')
+if __name__ == "__main__":
+    app = Application([("/", say_haha)], './html')
     http_server = HTTPServer(app)
     http_server.bind(8000)
     http_server.start()
-
-
-if __name__ == "__main__":
-    main()
-
 
