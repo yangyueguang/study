@@ -272,7 +272,7 @@ previousElementSibling
 ```
 
 ### 2.2 DOM操作
-```
+```javascript
 document.createElement(‘div’)
 document.createAttribute(‘class’);
 document.createTextNode(‘文本’)   e.innerHTML 
@@ -303,8 +303,9 @@ e.getElementsByClassName()
 e.querySelector(): Node
 e.querySelectorAll() : NodeList
 ```
+
 ### 2.3 window操作
-```
+```javascript
 window.alert(‘’)	//弹出一个警告框
 window.prompt(‘’)	//弹出一个输入提示框
 window.confirm()	//弹出一个确认框
@@ -323,17 +324,20 @@ setInterval() / clearInterval() / setTimeout() / clearTimeout
 
 ### 2.4 客户端可以实现页面跳转的方法：
 ```html
-1. <a href=”url”></a>
-2. <form action="url"></form>
-3. location.href=”url”;    location.assign(‘url’);
-4. window.open(‘url’);
-5. <meta http-equiv=”Refresh” content=”3;url”/>
+<a href=”url”></a>
+<form action="url"></form>
+location.href=”url”;    
+location.assign(‘url’);
+window.open(‘url’);
+<meta http-equiv=”Refresh” content=”3;url”/>
 ```
+
 ### 2.5 window.history对象的使用
 - length  访问历史中共有多少个页面
 - back()	退回到访问历史中的上一个页面
 - forward()  前进到访问历史中的下一页页面
 - go(num)  直接跳转到访问历史中的下num个页面；go(1)<=>forward(); go(-1)<=>back();
+
 ### 2.6 event的类型
 ```javascript
 onclick
@@ -359,6 +363,7 @@ onsubmit   // 表单被提交时
 onload     // 一般用于body元素，指当页面所有元素加载完成
 onerror    // 可以用于body、img元素，当发生解析错误时会调用onerror处理方法。
 ```
+
 ### 2.7 H5手册
 1. [HTML5新标签](https://www.w3school.com.cn/tags/html_ref_byfunc.asp)
 2. [HTML5标准属性](https://www.w3school.com.cn/html5/html5_ref_standardattributes.asp)
@@ -438,8 +443,8 @@ HTML转义字符
 ™		&trade;
 ```
 
-# 三、CSS
-## 3.1 尺寸单位
+# 四、CSS
+## 4.1 尺寸单位
 
 单位|说明
 --- | ---
@@ -454,60 +459,7 @@ upx | uni-app单位0.5px
 vw  | 屏幕宽度百分比
 vh  | 屏幕高度百分比
 
-### 3.2 动画
-1. 变形函数: transform
-```
-·translate(x)/ translate(x,y)
-·translateX(x) / translateY(y)
-·scale(x) / scale(x, y) 
-·scaleX(x) / scaleY(y)
-·rotate(deg) 
-·skew(x) / skew(x,y)  
-·skewX(x) / skewY(y)
-·rotateX(deg) / rotateY(deg) / rotateZ(deg) 沿轴旋转
-·translateZ(z)  
-·scaleZ(z)  Z轴上进行缩放，需配合X/Y旋转
-```
-2. 过渡效果
-- transition-property: none  |  all  |  p1 p2 ; 针对属性
-- transition-duration：100ms | 3s; 持续时间
-- transition-timing-function: linear | ease | ease-in | ease-out
-- transition-delay：100ms | 3s;  延迟时间
-- transition: property  duration  timing-function  delay;
-
-
-4. demo
-```
-border
-background-color:
-background-image:
-box-shadow: 10px 10px 5px 5px #aaa;
-border-radius:5px;
-border-image: url() round
-background-image: linear-gradient/radial-gradient
-```
-
-5. 设定光标效果
-```css
-cursor 
-·pointer	小手
-·move		可移动指示
-·text		可在此处进行文本输入
-·crosshair	显示为十字
-```
-6. 元素的定位方式(position)：
-```
-流定位，静态定位(static)：无法手动定位，不能指定元素的left/top等属性
-浮动定位(float)：left/top 不能严格指定位置
-相对定位(relative)：偏移位置
-绝对定位(absolute)：相对父元素的定位
-固定定位(fixed)：相对于祖先元素(body)的位置
-```
-7. 盒子模型
-- X轴总空间=MarginLeft + BorderLeft + PaddingLeft + Width+ PaddingRight + BorderRight + MarginRight
-- Y轴总空间=MarginTop + BorderTop + PaddingTop + Height+ PaddingBottom + BorderBottom + MarginBottom
-
-8. 选择器
+## 4.2 选择器
 
 语法 | 样例 | 描述 
 --- | --- | ---
@@ -539,6 +491,7 @@ element1~element2| p~ul| 选择p元素之后的每一个ul元素
 :not(selector)| :not(p)| 选择每个并非p元素的元素 
 :required| :required| 用于匹配设置了 "required" 属性的元素
 
+## 4.3 样式属性
 属性 | 可选值 | 说明
 --- | --- | ---
 align | left, right, center|水平对齐方式
@@ -557,6 +510,7 @@ OverFlow |scroll, hidden|超出区域的处理方式
 width,height,top,bottom,left,right,font-size,flex|5px|尺寸大小
 marging,padding|top,bottom,left|外边框，内边框
 color|#FFFFFF rgba(255,0,0,0.5) rgb(255,255,255)|颜色
+cursor |·pointer小手 ,·move ,·text,·crosshair十字|设定光标效果
 animation| name duration timing-function delay iteration-count direction fill-mode play-state|动画
 
 弹性盒子
@@ -572,7 +526,7 @@ div {
 }
 ```
 动画
-```
+```css
 @keyframes myfirst {
     from {background: red;}
     to {background: yellow;}
@@ -589,7 +543,19 @@ div{
   animation: myfirst 3s;
 }
 ```
-
+变形函数: transform
+```css
+·translate(x)/ translate(x,y)
+·translateX(x) / translateY(y)
+·scale(x) / scale(x, y) 
+·scaleX(x) / scaleY(y)
+·rotate(deg) 
+·skew(x) / skew(x,y)  
+·skewX(x) / skewY(y)
+·rotateX(deg) / rotateY(deg) / rotateZ(deg) 沿轴旋转
+·translateZ(z)  
+·scaleZ(z)  Z轴上进行缩放，需配合X/Y旋转
+```
 文字特效
 ```scss
 div {
@@ -616,6 +582,15 @@ li:after {
     transform: translate(0,-50%) rotate(45deg);
 }
 ```
+背景
+```css
+background: #00ff00 url('smiley.gif') left top no-repeat fixed center;
+background:bg-color bg-image position(right bottom,left top)/bg-size bg-repeat(no-repeat, repeat) bg-origin(content-box padding-box border-box) bg-clip bg-attachment initial|inherit;
+background: linear-gradient(to bottom right, red , blue,yellow, green);
+background: linear-gradient(180deg, red, blue);
+background: radial-gradient(red 5%, green 15%, blue 60%)
+```
+
 columns
 - column-count	指定元素应该被分割的列数。
 - column-fill	指定如何填充列
@@ -627,7 +602,11 @@ columns
 - column-span	指定元素要跨越多少列
 - column-width	指定列的宽度
 - columns	设置 column-width 和 column-count 的简写
-  
+
+盒子模型
+- X轴总空间=MarginLeft + BorderLeft + PaddingLeft + Width+ PaddingRight + BorderRight + MarginRight
+- Y轴总空间=MarginTop + BorderTop + PaddingTop + Height+ PaddingBottom + BorderBottom + MarginBottom
+
 border
 - border:5px solid #a1a1a1; dotted
 - border-radius: 15px 50px 30px 5px;
@@ -635,16 +614,10 @@ border
 
 animation
 - transition: width 2s, height 2s, transform 2s;
-背景
-```
-background: #00ff00 url('smiley.gif') left top no-repeat fixed center;
-background:bg-color bg-image position(right bottom,left top)/bg-size bg-repeat(no-repeat, repeat) bg-origin(content-box padding-box border-box) bg-clip bg-attachment initial|inherit;
-background: linear-gradient(to bottom right, red , blue,yellow, green);
-background: linear-gradient(180deg, red, blue);
-background: radial-gradient(red 5%, green 15%, blue 60%)
-```
-# 四、小程序教程
-## 1. 开发资源
+- transition: property  duration  timing-function(linear | ease | ease-in | ease-out)  delay;
+
+# 五、小程序教程
+## 5.1. 开发资源
 1. [开发工具介绍和下载](https://mp.weixin.qq.com/debug/wxadoc/dev/devtools/devtools.html)
 2. [注册流程](https://mp.weixin.qq.com/debug/wxadoc/introduction/index.html)
 3. [设计规范](https://mp.weixin.qq.com/debug/wxadoc/design/index.html)
@@ -652,7 +625,7 @@ background: radial-gradient(red 5%, green 15%, blue 60%)
 5. [开发组件](https://mp.weixin.qq.com/debug/wxadoc/dev/component/)
 6. [开发API](https://mp.weixin.qq.com/debug/wxadoc/dev/api/)
 
-## 2. 小程序公共设置
+## 5.2. 小程序公共设置
 app.json
 ```json
 {
@@ -696,7 +669,7 @@ app.json
 }
 ```
 
-### 2.1 注册程序
+### 5.3.1 注册程序
 function | desc
 --- | ---
 data |页面的初始数据
@@ -706,7 +679,7 @@ onShow |监听页面显示
 onHide |监听页面隐藏
 onUnload| 监听页面卸载
 
-### 2.2 注册页面
+### 5.3.2 注册页面
 function|desc
 ---|---
 data |页面数据
@@ -720,8 +693,8 @@ onReachBottom| 页面上拉触底
 onShareAppMessage| 用户点击右上角分享
 Any |其他函数
 
-## 3. 语法
-```
+## 5.3.3. 语法
+```wxml
   <template name="msgItem">
   <view>
     <text> {{index}}: {{msg}} </text>
@@ -738,8 +711,8 @@ Any |其他函数
 <template is="msgItem" data="{{...item}}"/>
 ```
 
-## 4. API接口
-```
+## 5.4. API接口
+```javascript
   wx.request({url: 'test.php', data: {x: '' , y: ''}, header: {'Content-Type': 'application/json'}, success: function(res) {
   console.log(res.data)
   }
