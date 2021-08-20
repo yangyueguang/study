@@ -46,6 +46,7 @@ npm run build:mp-weixin
 2. 用手机扫描测试验证调试与开发。
 3. 发布上线
 4. 编译后目录 # dist下dev和build下的mp-weixin分别为开发和正式环境编译后的项目文件夹
+
 ## 目录结构
 ```
 ┌─components            uni-app组件目录
@@ -64,6 +65,73 @@ npm run build:mp-weixin
 ├─manifest.json         配置应用名称、appid、logo、版本等打包信息
 └─pages.json            配置页面路由、导航条、选项卡等页面类信息
 
+```
+
+# package.json
+```json
+{
+  "name": "Vue-storeFront",
+  "version": "0.1.0",
+  "description": "xxx",
+  "author": "2829969299@qq.com",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "start": "node server.js",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "vue": "^2.5.17",
+    "vue-fullscreen": "^2.1.6",
+    "vue-router": "^3.0.1",
+    "vue-slider-component": "^2.8.0",
+    "vuex": "^3.0.1",
+    "vuex-persistedstate": "^2.5.4",
+    "axios": "^0.16.2",
+    "compressing": "^1.4.0",
+    "copy-dir": "^0.3.0",
+    "vconsole": "^3.3.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.1.1",
+    "@vue/cli-plugin-eslint": "^3.1.5",
+    "@vue/cli-service": "^3.1.4",
+    "vue-template-compiler": "^2.5.17",
+    "webpack-cli": "^3.1.2",
+    "mint-ui": "^2.2.7",
+    "chalk": "^2.0.1"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "engines": {
+    "node": ">= 4.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
 ```
 
 # HTML项目 项目采用VUE框架
@@ -1170,3 +1238,674 @@ class sup,sub,mark,b,Strong,i,em,s,u,p
 }
 
 
+import UIKit
+import Foundation
+# CSS
+### 元素的定位
+position | desc
+---- | ----
+
+//1.流/静态定位:默认/position:static; 不能指定位置
+//2.浮动定位:float:left/right; 不能严格指定位置
+//3.相对定位:position:relative; 使用left/top/right/bottom进行定位，仍占用页面空间
+//4.绝对定位:position:ablolute; 使用left/top/right/bottom进行定位，不占用页面空间
+//5.固定定位:position:fixed; 使用left/top/right/bottom进行定位，不占用页面空间
+/*
+CSS选择器
+*/
+class picker: NSObject {
+/*
+.class .intro 选择所有class="intro"的元素 1
+#id #firstname 选择所有id="firstname"的元素 1
+* * 选择所有元素 2
+    element p 选择所有<p>元素 1
+    element,element div,p 选择所有<div>元素和<p>元素 1
+    element element div p 选择<div>元素内的所有<p>元素 1
+    element>element div>p subviews 选择所有父级是 <div> 元素的 <p> 元素 2
+    element+element div+p firstView 选择所有紧接着<div>元素之后的<p>元素 2
+    [attribute] [target] 选择所有带有target属性元素 2
+    [attribute=value] [target=-blank] 选择所有使用target="-blank"的元素 2
+    [attribute~=value] [title~=flower] 选择标题属性包含单词"flower"的所有元素 2
+    :link a:link 选择所有未访问链接 1
+    :visited a:visited 选择所有访问过的链接 1
+    :active a:active 选择活动链接 1
+    :hover a:hover 选择鼠标在链接上面时 1
+    :first-letter p:first-letter 选择每一个<P>元素的第一个字母 1
+    :first-line p:first-line 选择每一个<P>元素的第一行 1
+    :first-child p:first-child 指定只有当<p>元素是其父级的第一个子级的样式。 2
+    :before p:before 在每个<p>元素之前插入内容 2
+    :after p:after 在每个<p>元素之后插入内容
+    element1~element2 p~ul 选择p元素之后的每一个ul元素 3
+    [attribute^=value] a[src^="https"] 选择每一个src属性的值以"https"开头的元素 3
+    [attribute$=value] a[src$=".pdf"] 选择每一个src属性的值以".pdf"结尾的元素 3
+    :root :root 选择文档的根元素 3
+    :empty p:empty 选择每个没有任何子级的p元素（包括文本节点） 3
+    :not(selector) :not(p) 选择每个并非p元素的元素 3
+    :required :required 用于匹配设置了 "required" 属性的元素 3
+    */
+    }
+    /*
+    CSS属性
+    */
+    class CSS: NSObject {
+    // 显示方式
+    enum Display {
+    case none// 此元素不会被显示。
+    case block// 此元素将显示为块级元素，此元素前后会带有换行符。
+    case inline// 默认。此元素会被显示为内联元素，元素前后没有换行符。
+    case inline-block// 行内块元素。（CSS2.1 新增的值）
+    case list-item// 此元素会作为列表显示。
+    case table// 此元素会作为块级表格来显示（类似 <table>），表格前后带有换行符。
+    case table-row-group// 此元素会作为一个或多个行的分组来显示（类似 <tbody>）。
+    case table-column-group// 此元素会作为一个或多个列的分组来显示（类似 <colgroup>）。
+    case table-cell// 此元素会作为一个表格单元格显示（类似 <td> 和 <th>）
+    case inherit// 规定应该从父元素继承 display 属性的值。
+    }
+
+    // 尺寸
+    enum Size {
+    case px
+    case percent // %
+    case em
+    case auto
+    case inherit
+    }
+
+    enum LineType {
+    case solid, dotted
+    }
+
+    // 列数
+    enum Columns {
+    case column-count// 指定元素应该被分割的列数。
+    case column-fill// 指定如何填充列
+    case column-gap// 指定列与列之间的间隙
+    case column-rule// 所有 column-rule-* 属性的简写
+    case column-rule-color// 指定两列间边框的颜色
+    case column-rule-style// 指定两列间边框的样式
+    case column-rule-width// 指定两列间边框的厚度
+    case column-span// 指定元素要跨越多少列
+    case column-width// 指定列的宽度
+    case columns// 设置 column-width 和 column-count 的简写
+    }
+
+    // 背景 包括图片，颜色等
+    enum Background {
+    //        background: #00ff00 url('smiley.gif') left top no-repeat fixed center;
+    //        background:bg-color bg-image position/bg-size bg-repeat bg-origin bg-clip bg-attachment initial|inherit;
+    //        background-image: url(img_flwr.gif), url(paper.gif);
+    //        background-position: right bottom, left top;
+    //        background-repeat: no-repeat, repeat;
+    //        background-origin:content-box padding-box border-box;
+    //        background-size:100% 100%;
+    //        background: linear-gradient(to bottom right, red , blue,yellow, green);
+    //        background: linear-gradient(180deg, red, blue);
+    //        background: radial-gradient(red 5%, green 15%, blue 60%)
+    }
+
+    // 边框
+    class Border: NSObject {
+    var radius: CGRect?
+    var type: LineType?
+    var color: UIColor?
+    var image: URL?
+
+    }
+
+    // 阴影
+    class BoxShadow: NSObject {
+    var x: Size?
+    var y: Size?
+    var z: Size?
+    var color: UIColor?
+    }
+
+    class transform: NSObject {
+    //        transform: rotate(30deg);
+    //        transform: translate(50px,100px);
+    //        transform: scale(2,3);
+    //        transform: skew(30deg,20deg);倾斜
+    //        matrix 方法有六个参数，包含旋转，缩放，移动（平移）和倾斜功能
+    //        translate3d(x,y,z)
+    //        scale3d(x,y,z)
+    //        rotate3d(x,y,z,angle)
+    }
+
+    // 内容对齐方式
+    enum Align-content {
+    case stretch, center, flex-start, flex-end, space-between, space-around, initial, inherit
+    }
+    // 子元素对齐方式
+    enum Align-items {
+    case stretch, center, flex-start, flex-end, baseline, initial, inherit
+    }
+    // 子元素换行方式
+    enum Flex-wrap {
+    case nowrap, wrap, wrap-reverse, initial, inherit
+    }
+    // 浮动方式
+    enum CSFloat {
+    case left, right, center
+    }
+    // 超出区域的处理方式
+    enum OverFlow {
+    case scroll, hidden
+    }
+
+
+    var display: Display?
+    var width  : Size?
+    var height  : Size?
+    var top  : Size?
+    var bottom   : Size?
+    var left   : Size?
+    var right   : Size?
+    var fontsize : Size?
+    var marging : CGRect?
+    var padding : CGRect?
+    var columns : Columns?
+    var background: Background?
+    var border : Border?
+    var font: Size?
+    var color: UIColor?
+    var box-shadow: BoxShadow?
+
+    /* 不常用的 */
+    //    func animation: name duration timing-function delay iteration-count direction fill-mode play-state;
+    var align-items: Align-items?
+    var flex-flow: NSObject?
+    var align-content: Align-content?
+    var animation: NSObject?
+    var flex: Int?
+    var float: CSFloat?
+    var overflow: OverFlow?
+    var text-decoration = "underline"
+    var box-sizing = "border-box"//考虑了padding和bord之后的尺寸大小
+
+    /*弹性盒子*/
+    var display: CSS.Display?
+    var flex-direction = "row"
+    var justify-content: Align-content?
+    var align-items: Align-items?
+    var flex-wrap: Flex-wrap?
+    var align-content: Align-content?
+    var flex: Int?// 比例比重
+
+    /*文字特效*/
+    var text-shadow: CSS.BoxShadow?
+    var text-wrap = "break-word"//   break-all;
+    var white-space = "nowrap"// 不换行
+    var text-align: Align-content?
+    var font-size: Size?
+
+}
+
+
+# 小程序教程
+## 开发资源
+1. [开发工具介绍和下载](https://mp.weixin.qq.com/debug/wxadoc/dev/devtools/devtools.html)
+2. [注册流程](https://mp.weixin.qq.com/debug/wxadoc/introduction/index.html)
+3. [设计规范](https://mp.weixin.qq.com/debug/wxadoc/design/index.html)
+4. [开发框架](https://mp.weixin.qq.com/debug/wxadoc/dev/framework/MINA.html)
+5. [开发组件](https://mp.weixin.qq.com/debug/wxadoc/dev/component/)
+6. [开发API](https://mp.weixin.qq.com/debug/wxadoc/dev/api/)
+
+## 配置
+1. app.js  小程序逻辑
+2. app.json  小程序公共设置
+```jsonpath
+{
+	"pages":[
+		"pages/index/index",
+		"pages/logs/index"
+	],
+	"window":{
+		"navigationBarTitleText":"标题",
+		"navigationBarBackgroundColor":"#000000",
+		"navigationBarTextStyle":"white",
+		"backgroundColor":"#ffffff",
+		"backgroundTextStyle":"light",
+		"enablePullDownRefresh":true
+	},
+	"tabBar":{
+		"color":"#000000",
+		"selectedColor":"green",
+		"backgroundColor":"red",
+		"borderStyle":"black",
+		"list":[
+			{
+				"pagePath":"pages/index/index",
+				"text":"首页",
+				"iconPath":"images/home.png",
+				"selectedIconPath":"images/homeHL.png"
+			},
+			{
+				"pagePath":"pages/logs/logs",
+				"text":"日志",
+				"iconPath":"images/home.png",
+				"selectedIconPath":"images/homeHL.png"
+			}
+		]
+	},
+	"networkTimeout":{
+		"request":10000,
+		"downloadFile":10000
+	},
+	"debug":true
+}
+```
+
+
+3. app.wxss  小程序公共样式表
+
+### 注册程序
+function | desc
+--- | ---
+data |页面的初始数据
+onLoad| 监听页面加载
+onReady| 监听页面渲染完成
+onShow |监听页面显示
+onHide |监听页面隐藏
+onUnload| 监听页面卸载
+
+### 注册页面
+function|desc
+---|---
+data |页面数据
+onLoad|  监听页面加载
+onReady| 页面加载成功
+onShow |页面显示
+onHide |页面隐藏
+onUnload| 页面卸载
+onPullDownRefresh | 监听页面下拉动作
+onReachBottom| 页面上拉触底
+onShareAppMessage| 用户点击右上角分享
+Any |其他函数
+
+### wxss
+- display: inline;
+- 从父元素继承: inherit
+- 居中: margin: auto;
+- 横向浮动布局: float: left;
+- 按钮禁用 .disabled {opacity: 0.6;cursor: not-allowed;}
+- 箭头
+```css
+li:after {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    display: inline-block;
+    content: "";
+    width: 7px;
+    height: 7px;
+    border: solid #999;
+    border-width: 1px 1px 0 0;
+    -webkit-transform: translate(0,-50%) rotate(45deg);
+    transform: translate(0,-50%) rotate(45deg);
+}
+```
+### 选择器
+语法 | 案例 | 说明
+--- | --- | ---
+.class| .intro	|选择所有class="intro"的元素
+#id	|#firstname	|选择所有id="firstname"的元素
+*	|*	|选择所有元素
+element|	p|	选择所有<p>元素
+element,element	|div,p	|选择所有<div>元素和<p>元素
+element element	|div p	|选择<div>元素内的所有<p>元素
+element>element	|div>p	|subviews 选择所有父级是 <div> 元素的 <p> 元素
+element+element	|div+p	|firstView 选择所有紧接着<div>元素之后的<p>元素
+[attribute]	|[target]	|选择所有带有target属性元素
+[attribute=value]	|[target=-blank]|	选择所有使用target="-blank"的元素
+[attribute~=value]|	[title~=flower]|	选择标题属性包含单词"flower"的所有元素
+:link|	a:link|	选择所有未访问链接
+:visited	|a:visited|	选择所有访问过的链接
+:active	|a:active|	选择活动链接
+:hover	|a:hover|	选择鼠标在链接上面时
+:first-letter|	p:first-letter|	选择每一个<P>元素的第一个字母
+:first-line|	p:first-line	|选择每一个<P>元素的第一行
+:first-child	|p:first-child|	指定只有当<p>元素是其父级的第一个子级的样式。
+:before	|p:before	|在每个<p>元素之前插入内容
+:after	|p:after	|在每个<p>元素之后插入内容
+element1~element2|	p~ul	|选择p元素之后的每一个ul元素
+[attribute^=value]|	a[src^="https"]	|选择每一个src属性的值以"https"开头的元素
+[attribute$=value]|	a[src$=".pdf"]	|选择每一个src属性的值以".pdf"结尾的元素
+:root	|:root	|选择文档的根元素
+:empty	|p:empty|	选择每个没有任何子级的p元素（包括文本节点）
+:not(selector)	|:not(p)|	选择每个并非p元素的元素
+:required|	:required|	用于匹配设置了 "required" 属性的元素
+
+### 对象属性
+
+display| description
+--- | ---
+none	|此元素不会被显示。
+block	|此元素将显示为块级元素，此元素前后会带有换行符。
+inline	|默认。此元素会被显示为内联元素，元素前后没有换行符。
+inline-block|	行内块元素。（CSS2.1 新增的值）
+list-item	|此元素会作为列表显示。
+table	|此元素会作为块级表格来显示（类似 ），表格前后带有换行符。
+table-row-group|	此元素会作为一个或多个行的分组来显示
+table-column-group|	此元素会作为一个或多个列的分组来显示。
+table-cell|	此元素会作为一个表格单元格显示
+inherit	|规定应该从父元素继承 display 属性的值。
+
+	- width  width  top  right bottom   left   fontsize   marging   padding auto length	% inherit
+
+	- columns
+
+		- column-count	指定元素应该被分割的列数。
+		- column-fill	指定如何填充列
+		- column-gap	指定列与列之间的间隙
+		- column-rule	所有 column-rule-* 属性的简写
+		- column-rule-color	指定两列间边框的颜色
+		- column-rule-style	指定两列间边框的样式
+		- column-rule-width	指定两列间边框的厚度
+		- column-span	指定元素要跨越多少列
+		- column-width	指定列的宽度
+		- columns	设置 column-width 和 column-count 的简写
+
+	- background
+
+		- background: #00ff00 url('smiley.gif') left top no-repeat fixed center;
+		- background:bg-color bg-image position/bg-size bg-repeat bg-origin bg-clip bg-attachment initial|inherit;
+		- background-image: url(img_flwr.gif), url(paper.gif);
+		- background-position: right bottom, left top;
+		- background-repeat: no-repeat, repeat;
+		- background-origin:content-box padding-box border-box;
+		- background-size:100% 100%;
+		- background: linear-gradient(to bottom right, red , blue,yellow, green);
+		- background: linear-gradient(180deg, red, blue);
+		- background: radial-gradient(red 5%, green 15%, blue 60%)
+
+	- border
+
+		- border:5px solid #a1a1a1; dotted
+		- border-radius: 15px 50px 30px 5px;
+		- border-image:url(border.png) 30 30 round;
+
+	- font   opacity
+		- font:15px
+	- color
+		- color: #FFFFFF rgba(255,0,0,0.5) rgb(255,255,255)
+	- box-shadow: 10px 10px 5px #888888;
+	- transform
+		- transform: rotate(30deg);
+		- transform: translate(50px,100px);
+		- transform: scale(2,3);
+		- transform: skew(30deg,20deg);
+	- 倾斜
+		- matrix 方法有六个参数，包含旋转，缩放，移动（平移）和倾斜功能
+		- translate3d(x,y,z)
+		- scale3d(x,y,z)
+		- rotate3d(x,y,z,angle)
+
+	- animation
+		-     transition: width 2s, height 2s, transform 2s;
+		-   transition: all 2s;
+		- 动画组
+```css
+@keyframes myfirst {
+    from {background: red;}
+    to {background: yellow;}
+}
+animation: myfirst 5s;
+@keyframes myfirst{
+    0%   {background: red;}
+    25%  {background: yellow;}
+    50%  {background: blue;}
+    100% {background: green;}
+}
+animation: myfirst 5s linear 2s infinite alternate;
+```
+	- position
+		- absolute	
+		- fixed
+		- align-content
+			- align-content: stretch|center|flex-start|flex-end|space-between|space-around|initial|inherit;
+		- align-items
+			- align-items: stretch|center|flex-start|flex-end|baseline|initial|inherit;
+		- animation
+			- animation: name duration timing-function delay iteration-count direction fill-mode play-state;
+		- flex
+			- 1
+		- float
+			- float:right;
+		- overflow
+			- overflow: scroll hidden;
+		- text-decoration
+			- text-decoration:underline
+		- box-sizing: border-box;
+			- 考虑了padding和bord之后的尺寸大小
+		- box-sizing:border-box;
+	- 弹性盒子
+		- display: flex;
+		- flex-direction: row;
+		- justify-content: flex-start | flex-end | center | space-between | space-around
+			- 对齐方式
+		- align-items: flex-start | flex-end | center | baseline | stretch
+			- 子视图对齐方式
+		- flex-wrap: nowrap|wrap|wrap-reverse|initial|inherit;
+			- 子元素换行方式
+		- align-content: flex-start | flex-end | center | space-between | space-around | stretch
+		-  flex: 1;
+			- 比例比重
+	- 文字特效
+		- text-shadow: 5px 5px 5px #FF0000;
+		- text-wrap:break-word   break-all;
+			- 长文本换行
+		- white-space: nowrap;
+			- 不换行
+		- text-align: center;
+		- font-size: 40px;
+### wxml
+- 数据绑定`<view> {{ message }} </view>`
+
+- 条件渲染
+```wxml
+<view wx:if="{{length > 5}}"> 1 </view>
+<view wx:elif="{{length > 2}}"> 2 </view>
+<view wx:else> 3 </view>
+```
+
+- 列表渲染
+```wxml
+<view wx:for="{{[zero, 1, 2, 3, 4]}}" wx:for-index="idx" wx:for-item="itemName"> {{item}} </view>
+<switch wx:for="{{objectArray}}" wx:key="unique" style="display: block;"> {{item.id}} </switch>
+```
+
+- 模板
+```wxml
+  <template name="msgItem">
+  <view>
+    <text> {{index}}: {{msg}} </text>
+    <text> Time: {{time}} </text>
+  </view>
+</template>
+<!-- 这里代表把item对象传入模板 -->
+<import src="item.wxml"/>
+<template is="msgItem" data="{{...item}}"/>
+```
+
+- 事件
+    - touchstart	手指触摸动作开始
+    - touchmove	手指触摸后移动
+    - touchcancel	手指触摸动作被打断，如来电提醒，弹窗
+    - touchend	手指触摸动作结束
+    - tap	手指触摸后马上离开
+    - longtap	手指触摸后，超过350ms再离开
+
+- 引用
+    - .class	.intro	选择所有拥有 class="intro" 的组件
+    - #id	#firstname	选择拥有 id="firstname" 的组件
+    - element	view	选择所有 view 组件
+    - element, element	view,.header	checkbox	选择所有文档的 view 组件和所有的 checkbox 组件
+    - ::after	view::after	在 view 组件后边插入内容
+    - ::before	view::before	在 view 组件前边插入内容
+
+## API接口
+
+### 1 网络
+
+- 发起请求
+```javascript
+  wx.request({url: 'test.php', data: {x: '' , y: ''}, header: {'Content-Type': 'application/json'},
+  success: function(res) {
+  console.log(res.data)
+  }
+  })
+```
+
+- 上传下载
+```javascript
+  wx.uploadFile({url: 'http://example.com/upload', filePath: tempFilePaths[0], name: 'file', formData:{'user': 'test'}})
+  wx.downloadFile({url: 'http://example.com/audio/123', type: 'audio', success: function(res) {}})
+```
+- WebSocket
+
+```javascript
+  wx.connectSocket({url: 'test.php', data:{x: '', y: ''},
+  header:{'content-type': 'application/json'}, method:"GET"})
+  wx.connectSocket({url: 'test.php'})
+  wx.onSocketOpen(function(res){
+  console.log('WebSocket 连接已打开！')
+  })
+  wx.onSocketClose(function(res) {
+  console.log('WebSocket 已关闭！')
+  })
+  wx.onSocketError(function(res){
+  console.log('WebSocket 连接打开失败，请检查！')
+  })
+```
+### 2 媒体
+
+```javascript
+  wx.chooseImage({count: 1, sizeType: ['original', 'compressed'], sourceType: ['album', 'camera'], success: function (res) {
+  	var tempFilePaths = res.tempFilePaths
+  }})
+  wx.previewImage({current: '', urls: []})
+  wx.starRecord({success: function(res) {
+  	var tempFilePath = res.tempFilePath
+  }, fail: function(res) {}
+  })
+  wx.stopRecord()
+// 音频播放控制
+  wx.playVoice({filePath: tempFilePath})
+  wx.pauseVoice()
+  wx.stopVoice()
+// 音乐播放控制
+  wx.onBackgroundAudioPlay(CALLBACK)
+  监听音乐播放。
+  wx.onBackgroundAudioPause(CALLBACK)
+  监听音乐暂停。
+  wx.onBackgroundAudioStop(CALLBACK)
+  监听音乐停止
+  wx.getBackgroundAudioPlayerState(OBJECT)
+  wx.playBackgroundAudio(OBJECT)
+  wx.pauseBackgroundAudio()
+  wx.seekBackgroundAudio(OBJECT)
+  wx.stopBackgroundAudio()
+// 文件
+  wx.saveFile(OBJECT)
+ // 视频
+  wx.chooseVideo(OBJECT)
+  ```
+
+### 3 数据
+
+
+```javascript
+  wx.setStorage({key:"key"data:"value"})
+  wx.getStorage({key: 'key', success: function(res) {
+  	console.log(res.data)
+  }})
+  wx.clearStorage()
+```
+### 4 位置
+
+```javascript
+  wx.getLocation({type: 'wgs84', success: function(res) {
+	  var latitude = res.latitude
+	  var longitude = res.longitude
+	  var speed = res.speed
+	  var accuracy = res.accuracy
+  }})
+  wx.openLocation({latitude: latitude, longitude: longitude, scale: 28})
+```
+### 5 设备
+
+```javascript
+// 网络状态
+  wx.getNetworkType({success: function(res) {
+  	var networkType = res.networkType // 返回网络类型 2g，3g，4g，wifi
+  }
+  })
+// 系统信息
+  wx.getSystemInfo({success: function(res) {
+  	console.log(res)
+  }})
+// 重力感应
+  wx.onAccelerometerChange(function(res) {
+  	console.log(res)
+  })
+// 罗盘
+  wx.onCompassChange(function (res) {
+  	console.log(res.direction)
+  })
+```
+### 6 界面
+```javascript
+// 设置导航条
+  wx.setNavigationBarTitle({title: '当前页面'})
+  wx.showNavigationBarLoading()
+  wx.hideNavigationBarLoading()
+// 导航
+  wx.navigateTo({url: 'test?id=1'})
+  wx.redirectTo({url: 'test?id=1'})
+  wx.navigateBack()
+// 动画
+  var animation = wx.createAnimation({transformOrigin: "50% 50%", duration: 1000, timingFunction: "ease", delay: 0})
+// 收起键盘
+  wx.hideKeyboard()
+// 下拉刷新
+  wx.stopPullDownRefresh()
+```
+### 7 开放接口
+
+```javascript
+// 登录
+  wx.login({success: function(res) {
+	  if (res.code) {
+		wx.request({url: 'https://test.com/onLogin', data: {code: res.code}})
+	  } else {
+		console.log('获取用户登录态失败！' + res.errMsg)
+	  }
+  }});
+
+// 用户信息
+  wx.getUserInfo({success: function(res) {
+	  var userInfo = res.userInfo
+	  var nickName = userInfo.nickName
+	  var avatarUrl = userInfo.avatarUrl
+	  var gender = userInfo.gender //性别 0：未知、1：男、2：女
+	  var province = userInfo.province
+	  var city = userInfo.city
+	  var country = userInfo.country
+  }})
+
+// 微信支付
+  wx.requestPayment({'timeStamp': '', 'nonceStr': '', 'package': '', 'signType': 'MD5', 'paySign': '',
+  'success':function(res){},
+  'fail':function(res){}
+  })
+```
+
+### 模板消息
+```wxml
+  <template name="item">
+	  <text>{{text}}</text>
+  </template>
+  在 index.wxml 中引用了 item.wxml，就可以使用 item 模板：
+  <import src="item.wxml"/>
+  <template is="item" data="{{text: 'forbar'}}"/>
+```
