@@ -98,23 +98,113 @@ Cursor:execute(),fetchone(),fetchall(),close()
 
 # MongoDB
 
-# 插入
-mysql:insert into Student(name) values(abc)
-mongo:db.Student.insert({})
+### 数据库常用命令
 
-# 更新
-mysql:update Student set name=abc where id > 2
-mongo:db.Student.update({id == 2},{$set},{name: abc})
+ 命令 | 作用
+---- | ----
+rs.status()| 查看数据库状态
+rs.slaveOk()| 开启查看数据库状态
+rs.stepDown(10)| 10s内让数据库降级
+rs.initiate(config)| 执行数据库初始化
+db.isMaster()| 查看本机是否是master
+rs.reconfig()| 更新配置文件
+db.serverStatus().connections| 查看连接数
 
-# 删除
-mysql:delete from Student where ....
-mongo:db.Student.remove({id:2},{name: abc})
+### 启动数据库
+```
+1. 通过配置启动 mongod -f my_mongo.conf
+2. 直接启动 mongod &
+参数说明：
+--dbpath 数据库数据存放位置
+--logpath 数据库日志存放位置
+--port 启动端口
+--fork 以守护进程方式启动
+--auth 开启验证
+--bind_ip 绑定启动IP
+```
+### 连接数据库
+```
+mongo localhost:27000
+mongo --port 27018 -u "myUserAdmin" -p "xxxx" --authenticationDatabase "admin"
+参数说明：
+--port 端口
+-u 用户名
+-p 密码
+--authenticationDatabase 需要验证的数据库
+-- host 数据库地址
+```
 
-# 查找
-db.stu.find({},{})
-$where
-limit(),skip(),sort(),count(),distinct()
+### 停止命令
+```
+1. kill XXX
+2. service mongod stop
+3. 数据库内部关闭： db.shutdownServer()
+4. 通过配置关闭： mongod -f /etc/mongo-m.conf  --shutdown
+5. 强行关闭：kill -9 XXX  数据库直接关闭，可能导致数据丢失
+```
 
+### 启动文件配置
+```shell
+port=27000
+bind_ip=0.0.0.0
+logpath=/home/mongodb/log/27000.log
+dbpath=/home/mongodb/data/27000
+logappend=true
+pidfilepath=/home/mongodb/data/27000/27000.pid
+fork=true
+oplogSize=1024
+replSet=haribol
+#auth=true
+#keyFile=/ExtendDisk/mongodb/mongodb_key
+```
+## 与mysql的区别
+1. 插入
+- mysql:insert into Student(name) values(abc)
+- mongo:db.Student.insert({})
+
+2. 更新
+- mysql:update Student set name=abc where id > 2
+- mongo:db.Student.update({id == 2},{$set},{name: abc})
+
+3. 删除
+- mysql:delete from Student where ....
+- mongo:db.Student.remove({id:2},{name: abc})
+
+4. 查找
+- db.stu.find({},{}) $where
+- limit(),skip(),sort(),count(),distinct()
+
+
+## 基础操作
+- 连接数据库: `mongodb://admin:123456@localhost/test`
+```bash
+show dbs;
+use db_name; # 既是使用又是创建
+db.dropDatabase() # 删除本数据库
+db.createCollection("freedom")
+show tables;
+db.table_name.insert({"a": "b"})
+db.table_name.find()
+db.table_name.find({"a": "b"})
+document=({
+    title: 'super', 
+    url: 'http://www.baidu.com',
+    tags: ['mongodb', 'database', 'NoSQL'],
+    age: 100
+});
+db.table_name.insert(document)
+var res = db.table_name.insertMany([{"b": 3}, {'c': 4}])
+db.table_name.drop() # 删除表
+db.table_name.update({'title':'super'},{$set:{'title':'MongoDB'}},{upsert: true},{multi:true})
+db.table_name.update({"count":{$gt:4}},{$set: {"test5": "OK"}},true,false);
+db.table_name.find().pretty()
+db.col.remove({'title':'super'})
+db.col.deleteMany({'title': 'super'})
+db.col.find({likes : {$lt :200, $gt : 100}})
+db.col.find({title:/^教/})
+db.col.find({},{"title":1,_id:0}).limit(1).skip(1) # skip 跳过几个
+db.col.find({},{"title":1,_id:0}).sort({"likes":-1})
+db.posts.find({post_text:{$regex:"runoob"}})
 
 db,show dbs,use Student,drop names
 db.Student.insert({})
@@ -130,36 +220,6 @@ db.Student.find({},{}).limit().skip().sort().count().distinct()
 mysql	insert update delete select
 redis	set	set	del	get
 mongodb	insert	update	remove	find,aggregate
-##1. 基础知识
-- 连接数据库: `mongodb://admin:123456@localhost/test`
-```bash
-> show dbs;
-> use db_name; # 既是使用又是创建
-> db.dropDatabase() # 删除本数据库
-> db.createCollection("freedom")
-> show tables;
-> db.table_name.insert({"a": "b"})
-> db.table_name.find()
-> db.table_name.find({"a": "b"})
-> document=({
-    title: 'super', 
-    url: 'http://www.baidu.com',
-    tags: ['mongodb', 'database', 'NoSQL'],
-    age: 100
-});
-> db.table_name.insert(document)
-> var res = db.table_name.insertMany([{"b": 3}, {'c': 4}])
-> db.table_name.drop() # 删除表
-> db.table_name.update({'title':'super'},{$set:{'title':'MongoDB'}},{upsert: true},{multi:true})
-> db.table_name.update({"count":{$gt:4}},{$set: {"test5": "OK"}},true,false);
-> db.table_name.find().pretty()
-> db.col.remove({'title':'super'})
-> db.col.deleteMany({'title': 'super'})
-> db.col.find({likes : {$lt :200, $gt : 100}})
-> db.col.find({title:/^教/})
-> db.col.find({},{"title":1,_id:0}).limit(1).skip(1) # skip 跳过几个
-> db.col.find({},{"title":1,_id:0}).sort({"likes":-1})
-> db.posts.find({post_text:{$regex:"runoob"}})
 ```
 ```
 $gt -------- greater than  >
@@ -169,7 +229,6 @@ $lte ------- lt equal  <=
 $ne -------- not equal  !=
 $eq -------- equal  =
 ```
-
 
 ### 添加普通用户
 1. 切换到需要添加用户的db`use xxxxx`
@@ -201,7 +260,7 @@ db.createUser(
 ```
 ### 删除用户
 1. 切换到用户授权的db`use xxx`
-`db.dropUser("username")`
+   `db.dropUser("username")`
 
 ### 更新用户
 1. 切换到用户授权的db`use xxx`
@@ -273,72 +332,9 @@ db.createRole(
    }
 )
 ```
-
-
-### 数据库常用命令
-
- 命令 | 作用
----- | ----
-rs.status()| 查看数据库状态
-rs.slaveOk()| 开启查看数据库状态
-rs.stepDown(10)| 10s内让数据库降级
-rs.initiate(config)| 执行数据库初始化
-db.isMaster()| 查看本机是否是master
-rs.reconfig()| 更新配置文件
-db.serverStatus().connections| 查看连接数
-
-### 启动数据库
-```
-1. 通过配置启动 mongod -f my_mongo.conf
-2. 直接启动 mongod &
-参数说明：
---dbpath 数据库数据存放位置
---logpath 数据库日志存放位置
---port 启动端口
---fork 以守护进程方式启动
---auth 开启验证
---bind_ip 绑定启动IP
-```
-### 连接数据库
-```
-mongo localhost:27000
-mongo --port 27018 -u "myUserAdmin" -p "xxxx" --authenticationDatabase "admin"
-参数说明：
---port 端口
--u 用户名
--p 密码
---authenticationDatabase 需要验证的数据库
--- host 数据库地址
-```
-
-### 停止命令
-```
-1. kill XXX
-2. service mongod stop
-3. 数据库内部关闭： db.shutdownServer()
-4. 通过配置关闭： mongod -f /etc/mongo-m.conf  --shutdown
-5. 强行关闭：kill -9 XXX  数据库直接关闭，可能导致数据丢失
-```
-
-### 启动文件配置
-```shell
-port=27000
-bind_ip=0.0.0.0
-logpath=/home/mongodb/log/27000.log
-dbpath=/home/mongodb/data/27000
-logappend=true
-pidfilepath=/home/mongodb/data/27000/27000.pid
-fork=true
-oplogSize=1024
-replSet=haribol
-#auth=true
-#keyFile=/ExtendDisk/mongodb/mongodb_key
-```
-
 # js支持
 
 ```javascript
-
 var MongoDB = require('shell/databases');
 var MongoClient = MongoDB.MongoClient;
 var Config = {
