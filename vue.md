@@ -465,7 +465,7 @@ vh  | 屏幕高度百分比
 --- | --- | ---
 .class| .intro |选择所有class="intro"的元素 
 #id |#firstname| 选择所有id="firstname"的元素
-* |* |选择所有元素
+`*` |`*` |选择所有元素
 element |p| 选择所有<p>元素 
 element,element| div,p| 选择所有<div>元素和<p>元素 
 element element| div p| 选择<div>元素内的所有<p>元素 
