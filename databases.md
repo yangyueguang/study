@@ -112,6 +112,9 @@ db.serverStatus().connections| 查看连接数
 
 ### 启动数据库
 ```
+service mongodb start
+service mongodb stop
+service mongodb restart
 1. 通过配置启动 mongod -f my_mongo.conf
 2. 直接启动 mongod &
 参数说明：

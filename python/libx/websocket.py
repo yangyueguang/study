@@ -5,6 +5,18 @@ import socket
 from multiprocessing import Process
 
 
+def make_socket():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(("", 9090))
+    server_socket.listen(128)
+    client_socket, client_address = server_socket.accept()
+    print("一个新客户端已经链接。。。。")
+    date = client_socket.recv(1024)
+    print("接收到的数据：", date.decode(encoding="utf-8"))
+    client_socket.send("世界之巅".encode(encoding="utf-8"))
+    client_socket.close()
+
+
 def say_haha(env, start_response):
     return "hello haha"
 

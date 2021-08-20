@@ -34,24 +34,6 @@
 
 
 
-import socket
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# 2.绑定本地端口
-server_socket.bind(("", 9090))
-# 3.设置为监听模式 1>把主动套接字转为被动套接字  2>告诉操作系统创建一个等待连接队伍
-server_socket.listen(128)
-# 4.等待客户端的链接 accept会阻塞等待，直到有客户端链接
-client_socket, client_address = server_socket.accept()  # 返回一个新的套接字和客户端的地址
-print("一个新客户端已经链接。。。。")
-# 5.接收来自客户端的数据
-date = client_socket.recv(1024)
-print("接收到的数据：", date.decode(encoding="utf-8"))
-# 6.回送数据给客户端
-client_socket.send("世界之巅".encode(encoding="utf-8"))
-# 7.关闭服务客户端的套接字
-client_socket.close()
-
-
 123、设计一个高并发
 1. 部署至少2台以上的服务器构成集群，既防止某台服务器突然宕机，也减轻单台服务器的压力。
 2. 页面进行动静分离，比如使用Nginx反向代理处理静态资源，并实现负载均衡。

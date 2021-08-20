@@ -1,12 +1,15 @@
-# node.js 说明
-## 1. 前提说明
-- 安装：`brew install nodejs && brew install yarn`, `node -v`, `yarn add $package_name`
-- node.js 语法与js语法完全一致。
-- node.js 用于写服务器后台应用。跟python一样可以单独运行。`node $name.js`
+# 一、环境安装
+- 安装：
+  ```bash
+  brew install nodejs
+  brew install yarn
+  node -v
+  yarn add $package_name
+  node xxx.js
+  ```
 - 生成 package.json `npm init --yes` 
-- cnpm 比 npm 更快。`npm install -g cnpm --registry=https://registry.npm.taobao.org`
-- 有点: 开发周期短、开发成本 低、学习成本低。
-## 2. 面向对象
+
+# 二、语法
 ```javascript
 class Person{
     static getInstance(){   /*单例*/
@@ -40,17 +43,15 @@ w.getInfo();
 Person.work();
 ```
 
-# server
-## http
+# 三、server
+## 1. http
 ```javascript
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
-// 创建服务器
 http.createServer( function (request, response) {
     var pathname = url.parse(request.url).pathname;
     console.log("Request for " + pathname + " received.");
-    // 从文件系统中读取请求的文件内容
     fs.readFile(pathname.substr(1), function (err, data) {
         if (err) {
             console.log(err);
@@ -62,13 +63,11 @@ http.createServer( function (request, response) {
         response.end();
     });
 }).listen(8080);
-// 控制台会输出以下信息
 console.log('Server running at http://127.0.0.1:8080/');
 ```
 
-## koa
+## 2. koa
 ```javascript
-
 // koa应用生成器
 /**
 npm install koa-generator -g
