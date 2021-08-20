@@ -67,32 +67,13 @@ console.log('Server running at http://127.0.0.1:8080/');
 ```
 
 ## 2. koa
-```javascript
-// koa应用生成器
-/**
+koa应用生成器
+```bash
 npm install koa-generator -g
 koa koa_demo
 npm start
-*/
-/**
-{
-  "dependencies": {
-    "express": "^4.17.1",
-    "cookie-parser": "^1.4.4",
-    "mongodb": "^3.5.3",
-    "koa": "^2.5.0",
-    "koa-router": "^7.4.0",
-    "koa-session": "^5.8.1",
-    "art-template": "^4.12.2",
-    "koa-art-template": "^1.1.1",
-    "koa-bodyparser": "^4.2.0",
-    "koa-static": "^4.0.2",
-    "socket.io": "^2.1.0",
-    "url": "^0.11.0",
-    "http": "^0.0.0"
-  }
-}
-*/
+```
+```javascript
 var Koa=require('shell/koa');
 path=require('path');
 session = require('koa-session');
@@ -100,21 +81,19 @@ var router = require('koa-router')();
 render = require('koa-art-template');
 bodyParser=require('koa-bodyparser');
 var app=new Koa();
-// 用后端渲染的配置
 render(app, {
-    root: path.join(__dirname, 'views'),   // 视图的位置
-    extname: '.html',  // 后缀名
-    debug: process.env.NODE_ENV !== 'production'  //是否开启调试模式
+    root: path.join(__dirname, 'views'),
+    extname: '.html',  
+    debug: process.env.NODE_ENV !== 'production'
 });
-//配置session的中间件
-app.keys = ['some secret hurr'];   /*cookie的签名*/
+app.keys = ['some secret hurr'];
 const CONFIG = {
-    key: 'koa:sess', // 默认
+    key: 'koa:sess', 
     maxAge: 10000,
-    overwrite: true, // 没有效果，默认
+    overwrite: true,
     httpOnly: true,
     signed: true,
-    rolling: true, // 在每次请求时强行设置 cookie
+    rolling: true,
     renew: false
 };
 app.use(bodyParser());
@@ -123,7 +102,7 @@ app.use(async (ctx,next)=>{
     console.log(new Date());
     next();
     console.log('匹配路由完成以后又会返回来执行中间件');
-    if(ctx.status==404){   /*如果页面找不到*/
+    if(ctx.status==404){ 
         ctx.status = 404;
         ctx.body="这是一个 404 页面"
     }else{
@@ -141,14 +120,11 @@ router.get('/',async (ctx)=>{
     var info=new Buffer('张三').toString('base64');
     ctx.cookies.set('userinfo',info,{maxAge:60*1000*60, httpOnly:false,});
     var userinfo=ctx.cookies.get('userinfo');
-    // var userinfo=new Buffer(userinfo, 'base64').toString();
-    console.log(ctx.session.userinfo);//获取session
-    ctx.session.userinfo='张三';//设置session
+    var userinfo=new Buffer(userinfo, 'base64').toString();
+    console.log(ctx.session.userinfo);
+    ctx.session.userinfo='张三';
     let list={name:userinfo};
-    // 后段直接渲染界面
-    await ctx.render('index',{
-        list:list
-    });
+    await ctx.render('index',{list:list});
 })
 router.get('/news',async (ctx, next)=>{
     ctx.body="新闻列表页面";
@@ -193,21 +169,16 @@ router.get('/news',(ctx)=>{
 module.exports=router;
 */
 ```
-## express
+## 3. express
 ```javascript
-// express web 服务
 var express = require('shell/express');
 var port = process.env.PORT || 8080;
 var app = express();
 var path = require('path');
-
 app.use(express.static(path.resolve(__dirname, 'dist')));
-
 app.get('*', function (req, res) {
     res.sendFile(__dirname + '/dist/index.html')
 })
-
-
 var cookieParser = require('cookie-parser')
 var bodyParser = require('body-parser');
 var multer  = require('multer');
@@ -216,17 +187,17 @@ var session = require("express-session");
 app.use(cookieParser())
 // app.use(cookieParser('sign')); // 表示用加密
 app.use(session({
-    secret: 'this is string key',   // 可以随便写。 一个 String 类型的字符串，作为服务器端生成 session 的签名
-    name:'session_id',/*保存在本地cookie的一个名字 默认connect.sid  可以不设置*/
-    resave: false,   /*强制保存 session 即使它并没有变化,。默认为 true。建议设置成 false。*/
-    saveUninitialized: true,   //强制将未初始化的 session 存储。  默认值是true  建议设置成true
+    secret: 'this is string key',   
+    name:'session_id',
+    resave: false,   
+    saveUninitialized: true,   
     cookie: {
-        maxAge:5000    /*过期时间*/
-    },   /*secure https这样的情况才可以访问cookie*/
+        maxAge:5000    
+    },  
     rolling:true, //在每次请求时强行设置 cookie，这将重置 cookie 过期时间（默认：false）
     // store:new MongoStore({
-    //     url: 'mongodb://127.0.0.1:27017/shop',  //数据库的地址
-    //     touchAfter: 24 * 3600   //time period in seconds  通过这样做，设置touchAfter:24 * 3600，您在24小时内只更新一次会话，不管有多少请求(除了在会话数据上更改某些内容的除外)
+    //     url: 'mongodb://127.0.0.1:27017/shop', 
+    //     touchAfter: 24 * 3600   //，您在24小时内只更新一次会话，不管有多少请求(除了在会话数据上更改某些内容的除外)
     // })
 }));
 var fs = require("fs");
@@ -235,16 +206,15 @@ app.use('/public', express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ dest: '/tmp/'}).array('image'));
-// 监听所有路由的中间件
 app.use(function(req,res,next){
     console.log(new Date());
     next(); // 路由继续向下匹配
 });
-app.use('/news',function(req,res,next){ // 监听路由news的中间件
+app.use('/news',function(req,res,next){ 
     console.log('新闻路由中间件通过app.use');
     next();
 });
-app.get('/news',function(req,res,next){ // 监听路由news的中间件
+app.get('/news',function(req,res,next){ 
     console.log('这是路由中间件');
     next();
 });
@@ -272,7 +242,7 @@ app.post('/news', urlencodedParser, function (req, res) {
     res.end(JSON.stringify(response));
 })
 app.post('/file_upload', function (req, res) {
-    console.log(req.files[0]);  // 上传的文件信息
+    console.log(req.files[0]); 
     var des_file = __dirname + "/" + req.files[0].originalname;
     fs.readFile(req.files[0].path, 'utf8', function (err, data) {
         fs.writeFile(des_file, data, function (err) {
@@ -292,11 +262,11 @@ app.post('/file_upload', function (req, res) {
 app.get('/news', function (req, res) {
     console.log("Cookies: " + util.inspect(req.cookies));
     console.log(req.cookies);
-    console.log(req.signedCookies);   /*获取加密的cookie信息*/
+    console.log(req.signedCookies);   
     // maxAge  过期时间 domain:'.aaa.com' 多个二级域名共享cookie
     // path  表示在哪个路由下面可以访问cookie signed属性设置成true 表示加密cookie信息
     res.cookie('username','cookie的值',{maxAge:60000});
-    if(req.session.userinfo){  // 获取 session 内容
+    if(req.session.userinfo){
         res.send('你好'+req.session.userinfo+'欢迎回来');
     }else{
         res.send('未登录');
@@ -306,10 +276,9 @@ app.get('/news', function (req, res) {
     //     console.log(err);
     // });
     // res.send('退出登录成功');
-    req.session.userinfo="zhangsan"; // 设置session
+    req.session.userinfo="zhangsan";
     res.send('Hello World');
 })
-/*匹配所有的路由  404*/
 app.use(function(req,res){
     res.status(404).send('这是404 表示路由没有匹配到')
 })
@@ -321,7 +290,7 @@ var server = app.listen(port, function () {
 });
 
 ```
-## chat server
+## 4. chat server
 ```javascript
 let express = require('express')
 let socket = require('socket.io')
@@ -330,58 +299,42 @@ let app = express()
 let server = http.createServer(app)
 let io = socket.listen(server)
 let users = [];
-// specify the html we will use
 // app.use('/', express.static(__dirname + '/www'));
 server.listen(process.env.PORT || 3333);// publish to heroku
 io.sockets.on('connection', function (socket) {
-  // new user login
   socket.on('login', function (nickname) {
     if (users.indexOf(nickname) > -1) {
       socket.emit('nickExisted', nickname, users);
     } else {
-        // socket.userIndex = users.length;
       socket.nickname = nickname;
       users.push(nickname);
       socket.emit('loginSuccess', nickname, users);
       io.sockets.emit('system', nickname, users, 'login');
     }
   });
-  // user leaves
   socket.on('disconnect', function () {
     if (socket.nickname != null) {
-        // users.splice(socket.userIndex, 1);
       users.splice(users.indexOf(socket.nickname), 1);
       socket.broadcast.emit('system', socket.nickname, users, 'logout');
     }
   });
-  // new message get
   socket.on('postMsg', function (msg, color) {
     console.log(msg)
     socket.broadcast.emit('newMsg', socket.nickname, msg, color);
   });
-  // new image get
   socket.on('img', function (imgData, color) {
     socket.broadcast.emit('newImg', socket.nickname, imgData, color);
   });
 });
-
 ```
-## socket
 
+## 5. socket
 ```javascript
 var fs = require('fs');
 var url = require('url');
 var express=require('shell/express');
 var http=require('http');
 var exp=express();
-// 通过原生代码建立服务
-// var app=http.createServer((req,res)=>{
-//     fs.readFile('app.html',function(err,data){
-//         res.writeHead(200,{"Content-Type":"text/html;charset='utf-8'"});
-//         res.end(data);
-//     })
-// });
-// 通过express建立服务
 var app = http.Server(exp);
 exp.get('/',function(req,res){
     fs.readFile('app.html',function(err,data){
@@ -389,24 +342,19 @@ exp.get('/',function(req,res){
         res.end(data);
     })
 });
-
 app.listen(8000,'127.0.0.1');
-
-
 var io = require('socket.io')(app);
 io.on('connection', function (socket) {
     console.log('建立链接');
     socket.on('message',function(data){
         console.log(data);
-        // io.emit('servermessage',data);   /*服务器给客户端发送数据*/
-        var msg=data||'';  /*获取客户端的数据*/
+        // io.emit('servermessage',data);  
+        var msg=data||'';  
         socket.emit('servermessage',msg);
     });
-
-    //获取客户端建立连接的时候传入的值
     console.log(socket.request.url);
-    var roomid=url.parse(socket.request.url,true).query.roomid;   /*获取房间号/ 获取桌号*/
-    socket.join(roomid);  /*加入房间/加入分组*/
+    var roomid=url.parse(socket.request.url,true).query.roomid;
+    socket.join(roomid);
     socket.on('addCart',function(data){
         console.log(data);
         // socket.emit();   /*谁给我发信息我把信息广播给谁*/
@@ -421,33 +369,30 @@ io.on('connection', function (socket) {
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>socket通信</title>
     <meta charset="UTF-8">
     <script src="http://127.0.0.1:8000/socket.io/socket.io.js"></script>
-</head>
-<body>
-<input type="text" id="msg"/><br/><br/>
-<button id="send">发送</button>
-</body>
+  </head>
+  <body>
+    <input type="text" id="msg"/><br/><br/>
+    <button id="send">发送</button>
+  </body>
 </html>
 <script>
     var socket = io.connect('http://127.0.0.1:8000/?roomid=1');
     var btn=document.getElementById('send');
     var msg=document.getElementById('msg');
     btn.onclick= function () {
-        socket.emit('message',msg.value);  /*客户端给服务器发送数据*/
-        socket.emit('addCart',{
-            client:'我是客户端的数据'
-        })
+        socket.emit('message',msg.value);
+        socket.emit('addCart',{client:'我是客户端的数据'})
     };
-    //接受服务器返回的数据
     socket.on('servermessage',function(data){
         console.log(data)
     })
 </script>
 ```
-# note
+# 四、note
 1. rem
 ```javascript
 (function(doc, win) {
@@ -462,12 +407,9 @@ io.on('connection', function (socket) {
     win.addEventListener(resizeEvt, recalc, false);
     doc.addEventListener('DOMContentLoaded', recalc, false);
 })(document, window);
-
 ```
 2. regular
 ```javascript
-// 常用的正则规则
-// eslint-disable-next-line
 export const regExpConfig = {
   IDcard: /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/, // 身份证
   mobile: /^1([3|4|5|7|8|])\d{9}$/, // 手机号码
@@ -486,16 +428,12 @@ export const regExpConfig = {
   isTableName: /^[a-zA-Z][A-Za-z0-9\#\$\_\-]{0,29}$/, // 表名
   isInt: /^-?\d+$/, // 整数
   isTableOtherName: /^[\u4e00-\u9fa5]{0,20}$/, // 别名
-  // isText_30: /^(\W|\w{1,2}){0,15}$/, // 正则
-  // isText_20: /^(\W|\w{1,2}){0,10}$/, // 正则
   isText_30: /^(\W|\w{1}){0,30}$/, // 匹配30个字符，字符可以使字母、数字、下划线、非字母，一个汉字算1个字符
   isText_50: /^(\W|\w{1}){0,50}$/, // 匹配50个字符，字符可以使字母、数字、下划线、非字母，一个汉字算1个字符
   isText_20: /^(\W|\w{1}){0,20}$/, // 匹配20个字符，字符可以使字母、数字、下划线、非字母，一个汉字算1个字符
   isText_100: /^(\W|\w{1}){0,100}$/, // 匹配100个字符，字符可以使字母、数字、下划线、非字母，一个汉字算1个字符
   isText_250: /^(\W|\w{1}){0,250}$/, // 匹配250个字符，字符可以使字母、数字、下划线、非字母，一个汉字算1个字符
-  isNotChina: /^[^\u4e00-\u9fa5]{0,}$/, // 不为中文  IDcard: /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/, // 身份证
-  IDcardAndAdmin: /^(([1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X))|(admin))$/, // 身份证或者是admin账号
-  IDcardTrim: /^\s*(([1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3})|([1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X))|(admin))\s*$/, // 身份证
+  isNotChina: /^[^\u4e00-\u9fa5]{0,}$/, // 不为中文 
   num1: /^[1-9]*$/, // 数字
   companyNO: /^qqb_[0-9a-zA-Z_]{1,}$/, // 公司人员账号
   imgType: /image\/(png|jpg|jpeg|gif)$/, // 上传图片类型
@@ -506,6 +444,7 @@ export const regExpConfig = {
 ```
 3. utils
 ```javascript
+// 1. 工具
 var md5=require('md5-node');
 var sd = require('silly-datetime');
 var tools={
@@ -517,19 +456,6 @@ var tools={
         return x+y;
     }
 };
-
-// 1. 创建web服务
-var http = require('http');
-var url = require('url');
-http.createServer(function (request, response) {
-    response.writeHead(200, {'Content-Type': 'text/plain'});
-    var pathname = url.parse(request.url, true).pathname;
-    console.log("Request for " + pathname + " received.");
-    response.write("Hello, world!\n");
-    response.end();
-}).listen(8888);
-console.log('Server running at http://127.0.0.1:8888/');
-
 // 2. 网络请求
 var http = require('http');
 var options = {host: 'localhost', port: '8080', path: '/index.html'};
@@ -562,8 +488,7 @@ console.log("程序执行完毕。");
 // 4. 生成验证码从web返回
 var svgCaptcha = require('svgCaptcha');
 const captcha = svgCaptcha.create( {
-    size:6,
-    fontSize: 50, width: 100, height:40, background:"#cc9966"
+    size:6, fontSize: 50, width: 100, height:40, background:"#cc9966"
 });
 ctx.session.code=captcha.text;
 ctx.response.type = 'image/svg+xml';
@@ -584,7 +509,7 @@ const fs = require('fs');
 */
 //a. 流的方式读取文件
 var readStream=fs.createReadStream('input.txt');
-var str='';/*保存数据*/
+var str='';
 readStream.on('data',function(chunk){
     str+=chunk;
 })
@@ -612,7 +537,5 @@ var readerStream = fs.createReadStream('input.txt');
 var writerStream = fs.createWriteStream('output.txt');
 readerStream.pipe(writerStream);
 console.log("程序执行完毕");
-
-
 module.exports=tools;
 ```
