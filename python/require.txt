@@ -43,3 +43,5 @@ pywebview
 pip
 py2app
 pywin32
+colorama==0.4.4
+pika
