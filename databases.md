@@ -542,3 +542,264 @@ MongoClient.connect(DBurl, function (err, db) {
     console.log(list)
 });
 ```
+# python支持
+```python
+# coding=utf-8
+from bson import ObjectId
+from pymongo import MongoClient
+from pymongo.database import Collection, Database
+
+
+class MongodbException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+
+class MongoManager(object):
+    def __init__(self, uri, db, client=None):
+        self.client = client or MongoClient(uri, tz_aware=False, retryWrites=True)
+        self.db = db
+
+    def get_client(self) -> MongoClient:
+        return self.client
+
+    def check_connection_state(self) -> bool:
+        try:
+            return self.client["admin"].command("ping").get("ok") == 1
+        except:
+            return False
+
+    def get_collection(self, table: str) -> Collection:
+        return self.client[self.db][table]
+
+    def get_db(self) -> Database:
+        return self.client[self.db]
+
+    def show_collections(self) -> List[str]:
+        return self.get_db().collection_names()
+
+    # 插入部分
+    def single_insert(self, table: str, document) -> str:
+        con = self.get_collection(table)
+        result = con.insert_one(document)
+        return str(result.inserted_id)
+
+    def mul_insert(self, table, documents, has_return=False):
+        if documents:
+            con = self.get_collection(table)
+            res = con.insert_many(documents)
+            return [str(item) for item in res] if has_return else None
+
+    # 修改部分
+    def update(self, table, query, update):
+        con = self.get_collection(table)
+        data = {"$set": update}
+        con.update_many(query, data)
+
+    def cover(self, table, query, update):
+        con = self.get_collection(table)
+        con.replace_one(query, update)
+
+    def custom_update(self, table, query, update):
+        con = self.get_collection(table)
+        con.update_many(query, update)
+
+    # 查询部分
+    def get_page_list(self, table, mfilter, mfields=None, msort=None, page=1, page_size=20):
+        con = self.get_collection(table)
+        fields = {item: 1 for item in mfields or []}
+        sorts = list(map(lambda x: (x[1:], -1) if "-" in x else (x, 1), msort or []))
+        offset = (page - 1) * page_size
+        if fields:
+            cursor = con.find(mfilter, fields).skip(offset).limit(page_size)
+        else:
+            cursor = con.find(mfilter).skip(offset).limit(page_size)
+        if sorts:
+            cursor = cursor.sort(sorts)
+        res = []
+        for document in cursor:
+            document["_id"] = str(document["_id"])
+            res.append(document)
+        return res
+
+    def get_page_list_full_key(self, table, mfilter, mfields=None, msort=None, page=1, page_size=20):
+        """
+        @attention: 列表查询(用于分页时的查询)，返回列表,如果查询key不存在,则用空填补
+        @warning: 请不要使用该函数进行统计，统计请直接使用底层模块来处理
+        """
+        mfields = mfields or []
+        con = self.get_collection(table)
+        fields = {item: 1 for item in mfields}
+        sorts = list(map(lambda x: (x[1:], -1) if "-" in x else (x, 1), msort or []))
+        offset = (page - 1) * page_size
+        if fields:
+            cursor = con.find(mfilter, fields).skip(offset).limit(page_size)
+        else:
+            cursor = con.find(mfilter).skip(offset).limit(page_size)
+
+        if sorts:
+            cursor = cursor.sort(sorts)
+
+        res = []
+        for document in cursor:
+            document["_id"] = str(document["_id"])
+            temp = {item: "" for item in mfields}
+            temp.update(document)
+            res.append(temp)
+        return res
+
+    def get_find_cursor(self, table, mfilter, mfields=None, msort=None):
+        con = self.get_collection(table)
+        fields = {item: 1 for item in mfields or []}
+        sorts = list(map(lambda x: (x[1:], -1) if "-" in x else (x, 1), msort or []))
+        if fields:
+            cursor = con.find(mfilter, fields)
+        else:
+            cursor = con.find(mfilter)
+        if sorts:
+            cursor = cursor.sort(sorts)
+        return cursor
+
+    def get_one_info(self, table, mfilter, mfields=None):
+        con = self.get_collection(table)
+        fields = {item: 1 for item in mfields or []}
+        res = con.find_one(mfilter, fields)
+        if res is None:
+            return None
+        else:
+            res["_id"] = str(res["_id"])
+            return res
+
+    # 删除部分
+    def delete_info(self, table, query):
+        con = self.get_collection(table)
+        con.delete_many(query)
+
+    def count(self, table, query, key="", is_distinct=False):
+        con = self.get_collection(table)
+        if is_distinct:
+            num = len(con.distinct(key, query))
+        else:
+            num = con.count(query)
+        return num
+
+    def get_field_distinct_list(self, table, query, key):
+        con = self.get_collection(table)
+        info = con.distinct(key, query)
+        return info
+
+    def get_distinct_number(self, table, query, key):
+        pipeline = [
+            {
+                "$match": query
+            },
+            {
+                "$group": {
+                    "_id": "sum",
+                    "times": {
+                        "$addToSet": "$%s" % key
+                    }
+                }
+            },
+            {
+                "$project": {
+                    "times": {
+                        "$size": "$times"
+                    }
+                }
+            },
+            {
+                "$sort": {
+                    "times": -1
+                }
+            },
+        ]
+        info = self.run_pipeline(table, pipeline)
+        info = list(info)
+        return info[0]["times"] if info else 0
+
+    def run_pipeline(self, table, pipeline, allowDiskUse=True):
+        con = self.get_collection(table)
+        return con.aggregate(pipeline, allowDiskUse=allowDiskUse)
+
+    def drop(self, table):
+        con = self.get_collection(table)
+        con.drop()
+
+    def create_index(self, table, index_list):
+        con = self.get_collection(table)
+        con.create_index(index_list)
+
+    def create_table(self, name):
+        self.client[self.db].create_collection(name)
+
+    def has_table(self, table):
+        tables = self.client[self.db].collection_names()
+        return table in tables
+
+    # 复合类方法
+    def update_or_create(self, table, query, update) -> str:
+        res = self.get_one_info(table, query)
+        if res:
+            res["_id"] = ObjectId(res["_id"])
+            self.update(table, res, update)
+            pk = res["_id"]
+        else:
+            pk = self.single_insert(table, update)
+        return str(pk)
+
+    def sum(self, table, mfilter, keys):
+        keys_group = {item: {"$sum": "$%s" % item} for item in keys}
+        keys_group.update({"_id": "sum"})
+        pipeline = [{"$match": mfilter}, {"$group": keys_group}]
+        res = list(self.run_pipeline(table, pipeline))
+        if res:
+            return res[0]
+        else:
+            return {}.fromkeys(keys, 0)
+
+    def top(self, table, query, classify_param, count_param, top=0, sort_tag=-1, has_space=False):
+        """
+        @attention: 某个指定字段分布情况
+        @param table: 表名
+        @param query: 过滤条件
+        @param classify_param: 分类字段
+        @param count_param: 分类字段对应的次数字段,注意该字段的值必须是数字
+        @param top: 取值范围,0表示获取全部
+        @param sort_tag: 排序标识,默认按数字大小倒叙排列(从大到小);1:从小到大,-1:从大到小,0:不排序
+        """
+        if isinstance(classify_param, list):
+            if not has_space:
+                for param in classify_param:
+                    if param in query:
+                        query[param]["$ne"] = ""
+                    else:
+                        query.update({param: {"$ne": ""}})
+            id_group = {"_id": {item: "$%s" % item for item in classify_param}}
+            show = {"_id": 0, count_param: 1}
+            show.update({item: "$_id.%s" % item for item in classify_param})
+        else:
+            if not has_space:
+                if classify_param in query:
+                    query[classify_param]["$ne"] = ""
+                else:
+                    query.update({classify_param: {"$ne": ""}})
+            id_group = {"_id": {classify_param: "$%s" % classify_param}}
+            show = {"_id": 0, count_param: 1, classify_param: "$_id.%s" % classify_param}
+        times_group = {count_param: {"$sum": "$%s" % count_param}}
+        cgroup = {}
+        cgroup.update(id_group)
+        cgroup.update(times_group)
+        pipeline = [{"$match": query},{"$group": cgroup}]
+        if sort_tag != 0:
+            pipeline.append({"$sort": {count_param: sort_tag}})
+        if top > 0:
+            pipeline.append({"$limit": top})
+        pipeline.append({"$project": show},)
+        info = self.run_pipeline(table, pipeline)
+        return info
+
+    def show_indexes(self, table):
+        con = self.get_collection(table)
+        return con.index_information()
+```
