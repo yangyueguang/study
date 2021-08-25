@@ -7,7 +7,7 @@ from Cython.Distutils import build_ext
 from distutils.command import clean
 from Cython.Build import cythonize
 
-SRC_DIR = "extractor"
+SRC_DIR = "libx"
 IGNORE_FILES = ["__init__.py"]
 all_files = [str(i) for i in Path(SRC_DIR).rglob('*.py') if i.name not in IGNORE_FILES]
 extensions = [Extension(i.replace(os.path.sep, '.').rstrip('.py'), [i], include_dirs=['.']) for i in all_files]
