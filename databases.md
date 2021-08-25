@@ -109,6 +109,7 @@ rs.initiate(config)| 执行数据库初始化
 db.isMaster()| 查看本机是否是master
 rs.reconfig()| 更新配置文件
 db.serverStatus().connections| 查看连接数
+数据库管理工具：robo 3T
 
 ### 启动数据库
 ```
@@ -148,17 +149,14 @@ mongo --port 27018 -u "myUserAdmin" -p "xxxx" --authenticationDatabase "admin"
 
 ### 启动文件配置
 ```shell
-port=27000
+port=27017
 bind_ip=0.0.0.0
-logpath=/home/mongodb/log/27000.log
-dbpath=/home/mongodb/data/27000
+logpath=/home/mongodb/log/root.log
+dbpath=/home/mongodb/data/
 logappend=true
-pidfilepath=/home/mongodb/data/27000/27000.pid
 fork=true
 oplogSize=1024
-replSet=haribol
 #auth=true
-#keyFile=/ExtendDisk/mongodb/mongodb_key
 ```
 ## 与mysql的区别
 1. 插入
@@ -177,6 +175,84 @@ replSet=haribol
 - db.stu.find({},{}) $where
 - limit(),skip(),sort(),count(),distinct()
 
+
+### 一、数据库操作
+```bash
+db/db.getName() # 查询当前数据库
+show dbs # 查询所有的数据库
+use music  # 创建/切换数据库
+db.dropDataBase()  # 删除数据库
+db.stats()
+db.version()
+```
+
+### 二、集合操作
+```bash
+db.createCollection('collectionName') 创建一个集合
+db.getCollectionNames() 得到当前db的所有集合
+```
+### 三、文档操作
+
+1. 插入数据
+```bash
+db.users.insertOne({"username": 1, password: 123})
+db.users.insertMany([{username: 'gaojie', password: 'gj', email: 'gj@126.com'}, {username: 'xinyi', password: 123, email: 123}])
+db.baoguo.insert([{name: 'm1', release: '2020-12-05'}])
+db.baoguo.insert([{name: 'm2', release: '2020-12-05'}, {name: 'm3', release: '2020-12-06'}])
+db.baoguo.save([{name: 'm4', release: '2020-12-07'}, {name: 'm5', release: '2020-12-08'}])
+db.baoguo.insert([{name: 'm1', release: '2020-12-05', publishNum: 100}])
+```
+
+2. 修改数据
+```bash
+ db.collection.update(
+   <query>,
+   <update>, # $set设置的话， 后两个参数才有效
+   {
+     upsert: <boolean>, # 是否找不到就创建
+     multi: <boolean>,
+     writeConcern: <document>,
+     collation: <document>,
+     arrayFilters: [ <filterdocument1>, ... ],
+     hint:  <document|string>        // Available starting in MongoDB 4.2
+   }
+)
+db.users.update({username: 'gp145'}, {$set: {username: 'yl'}}, true, true)
+db.users.updateMany({username: 'yl'}, {$set: {username: 'yangli'}})
+db.baoguo.update({name: 'm1'}, {$set: {release:'2020-12-04'}})
+db.baoguo.update({name: 'm100'}, {$inc: {publishNum: 200}}, true)
+db.baoguo.update({name: 'm1000'}, {$inc: {publishNum: 200}}, true)
+db.baoguo.update({name: 'm1'}, {$inc: {publishNum: 200}}, true, true)
+```
+
+3. 删除数据
+```bash
+db.baoguo.remove({name: 'm1000'})
+```
+
+4. 查询数据
+```bash
+db.baoguo.find()
+db.baoguo.distinct('name')
+db.baoguo.find({release: '2020-12-05'})
+db.baoguo.find({release: {$gt: '2020-12-05'}})
+db.baoguo.find({release: {$gte: '2020-12-05'}})
+db.baoguo.find({release: {$lt: '2020-12-05'}})
+db.baoguo.find({release: {$lte: '2020-12-05'}})
+db.baoguo.find({release: {$gte: '2020-12-04', $lte: '2020-12-06'}})
+db.baoguo.find({name:/^1/})
+db.baoguo.find({name:/1$/})
+db.baoguo.find({}, {_id: 0, publishNum: 0})
+db.baoguo.find({name:/1$/}, {_id: 0, publishNum: 0})
+db.baoguo.find().sort({release: 1})
+db.baoguo.find().sort({release: -1})
+db.baoguo.find().sort({release: 1}).limit(3).skip(6)
+db.baoguo.find().limit(3).skip(6).sort({release: 1})
+db.baoguo.find({$or:[{release: '2020-12-04'}, {release: '2020-12-05'}]})
+db.baoguo.findOne()
+db.baoguo.find().count()
+db.movies.find({rt: {$gte: '2020-01-01'}}, {nm: 1, _id: 0, rt: 1}).sort({rt: -1}).limit(3).skip(3)
+```
 
 ## 基础操作
 - 连接数据库: `mongodb://admin:123456@localhost/test`
