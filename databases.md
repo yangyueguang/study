@@ -309,9 +309,9 @@ $ne -------- not equal  !=
 $eq -------- equal  =
 ```
 
-### 添加普通用户
-1. 切换到需要添加用户的db`use xxxxx`
+### 操作用户
 ```shell
+db`use xxxxx`
 db.createUser(
     {
         user:"username",
@@ -322,11 +322,8 @@ db.createUser(
         ]
     }
 )
-```
-
-### 添加超级用户
-1. 切换到admin数据库`use admin`
-```shell
+# 添加超级用户
+use admin
 db.createUser(
     {
         user:"username",
@@ -336,80 +333,19 @@ db.createUser(
         ]
     }
 )
-```
-### 删除用户
-1. 切换到用户授权的db`use xxx`
-   `db.dropUser("username")`
-
-### 更新用户
-1. 切换到用户授权的db`use xxx`
-```shell
+# 删除用户
+db.dropUser("username")
+# 更新用户
 db.updateUser("username",{
     pwd:"new password",
     customData:{
         "title":"PHP developer"
     }
 })
-```
-### 更新用户密码
-```shell
-use xx
+# 更新用户密码
 db.changeUserPassword("username","newpassword")
-```
-### 查看用户信息
-```
-use admin
+# 查看用户信息
 db.getUser("username")
-```
----
-## **角色操作**
-### 添加用户角色
-```
-use xx
-db.grantRolesToUser(
-    "reportsUser",
-    [
-      { role: "read", db: "accounts" }
-    ]
-)
-```
-
-### 删除用户角色
-```
-use xx
-db.revokeRolesFromUser(
-    "usename",
-    [
-      { role: "readWrite", db: "accounts" }
-    ]
-)
-```
-### 查看角色信息
-```
-use admin
-db.getRole("rolename",{showPrivileges:true})
-```
-
-### 删除角色
-```
-use admin
-db.dropRole("rolename")
-```
-
-### 自定义角色
-自定义角色保存在admin数据库system.roles集合中
-```
-use admin
-db.createRole(
-   {
-     role: "manageOpRole",
-     privileges: [
-       { resource: { cluster: true }, actions: [ "killop", "inprog" ] },
-       { resource: { db: "", collection: "" }, actions: [ "killCursors" ] }
-     ],
-     roles: []
-   }
-)
 ```
 # js支持
 
