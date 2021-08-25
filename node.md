@@ -364,8 +364,90 @@ io.on('connection', function (socket) {
         socket.broadcast.to(roomid).emit('servermessage','Server AddCart Ok'); //通知分组内的用户不包括自己
     })
 });
-
 ```
+
+## 6. WEBSOCKET
+```javascript
+const WebSocket = require('ws')
+const ws = new WebSocket.Server({ port: 8081, host: '10.9.64.101' })
+let clients = {}
+let clientName = 0
+ws.on('connection', (client) => {
+  client.name = ++clientName
+  clients[client.name] = client
+  client.on('message', (msg) => {
+    console.log(clients)
+    for (var key in clients) {
+      clients[key].send(client.name + ' 说：' + msg)
+    }
+  })
+  client.on('close', () => {
+    delete clients[client.name]
+    console.log(client.name + ' 离开了~')
+  })
+})
+```
+
+## 7. net socket
+```javascript
+const net = require('net')
+const server = new net.createServer()
+let clients = {}
+let clientName = 0
+server.on('connection', (client) => {
+  client.name = ++clientName
+  clients[client.name] = client
+  client.on('data', (msg) => {
+    console.log('客户端传来：' + msg);
+    for (var key in clients) {
+      clients[key].write(client.name + ' 说：' + msg.toString())
+    }
+  })
+  client.on('error', (e) => {
+    console.log('client error' + e);
+    client.end()
+  })
+  client.on('close', (data) => {
+    delete clients[client.name]
+    console.log(client.name + ' 下线了');
+  })
+})
+server.listen(9000, 'localhost')
+```
+ 
+## 8. client socket
+```javascript
+    var net = require('net')
+const readline = require('readline')
+var socket = new net.Socket()
+socket.setEncoding = 'UTF-8'
+socket.connect(9000, '127.0.0.1', () => {
+  socket.write('hello.')
+})
+socket.on('data', (msg) => {
+  console.log(msg.toString())
+  r1.question('请输入：\n', (inputMsg) => {
+    if (inputMsg != 'bye') {
+      socket.write(inputMsg + '\n')
+    } else {
+      socket.destroy()
+      r1.close()
+    }
+  })
+})
+socket.on('error', function (err) {
+  console.log('error' + err);
+})
+
+socket.on('close', function () {
+  console.log('connection closeed');
+})
+const r1 = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+})
+```
+
 ```html
 <!DOCTYPE html>
 <html>
