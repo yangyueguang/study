@@ -66,7 +66,7 @@ http.createServer( function (request, response) {
 console.log('Server running at http://127.0.0.1:8080/');
 ```
 
-## 2. koa
+## 2. koa（不推荐）
 koa应用生成器
 ```bash
 npm install koa-generator -g
@@ -169,7 +169,7 @@ router.get('/news',(ctx)=>{
 module.exports=router;
 */
 ```
-## 3. express
+## 3. express（推荐使用）
 ```javascript
 var express = require('shell/express');
 var port = process.env.PORT || 8080;
