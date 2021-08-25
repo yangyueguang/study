@@ -125,26 +125,16 @@ service mongodb restart
 --fork 以守护进程方式启动
 --auth 开启验证
 --bind_ip 绑定启动IP
-```
-### 连接数据库
-```
-mongo localhost:27000
-mongo --port 27018 -u "myUserAdmin" -p "xxxx" --authenticationDatabase "admin"
-参数说明：
---port 端口
--u 用户名
--p 密码
+# 连接数据库
+mongo localhost:27017
+mongo --host 127.0.0.1 --port 27018 -u "myUserAdmin" -p "xxxx" --authenticationDatabase "admin"
 --authenticationDatabase 需要验证的数据库
--- host 数据库地址
-```
-
-### 停止命令
-```
-1. kill XXX
-2. service mongod stop
-3. 数据库内部关闭： db.shutdownServer()
-4. 通过配置关闭： mongod -f /etc/mongo-m.conf  --shutdown
-5. 强行关闭：kill -9 XXX  数据库直接关闭，可能导致数据丢失
+# 停止命令
+service mongod stop  
+db.shutdownServer() 
+mongod -f /etc/mongo-m.conf  --shutdown
+# 连接数据库
+mongodb://admin:123456@localhost/test
 ```
 
 ### 启动文件配置
@@ -158,30 +148,13 @@ fork=true
 oplogSize=1024
 #auth=true
 ```
-## 与mysql的区别
-1. 插入
-- mysql:insert into Student(name) values(abc)
-- mongo:db.Student.insert({})
-
-2. 更新
-- mysql:update Student set name=abc where id > 2
-- mongo:db.Student.update({id == 2},{$set},{name: abc})
-
-3. 删除
-- mysql:delete from Student where ....
-- mongo:db.Student.remove({id:2},{name: abc})
-
-4. 查找
-- db.stu.find({},{}) $where
-- limit(),skip(),sort(),count(),distinct()
-
 
 ### 一、数据库操作
 ```bash
 db/db.getName() # 查询当前数据库
 show dbs # 查询所有的数据库
 use music  # 创建/切换数据库
-db.dropDataBase()  # 删除数据库
+db.dropDataBase()  # 删除当前数据库
 db.stats()
 db.version()
 ```
@@ -228,17 +201,16 @@ db.baoguo.update({name: 'm1'}, {$inc: {publishNum: 200}}, true, true)
 3. 删除数据
 ```bash
 db.baoguo.remove({name: 'm1000'})
+db.col.deleteMany({'title': 'super'})
+db.table_name.drop() # 删除表
 ```
 
 4. 查询数据
 ```bash
-db.baoguo.find()
+db.baoguo.find().pretty()
 db.baoguo.distinct('name')
 db.baoguo.find({release: '2020-12-05'})
 db.baoguo.find({release: {$gt: '2020-12-05'}})
-db.baoguo.find({release: {$gte: '2020-12-05'}})
-db.baoguo.find({release: {$lt: '2020-12-05'}})
-db.baoguo.find({release: {$lte: '2020-12-05'}})
 db.baoguo.find({release: {$gte: '2020-12-04', $lte: '2020-12-06'}})
 db.baoguo.find({name:/^1/})
 db.baoguo.find({name:/1$/})
@@ -248,58 +220,15 @@ db.baoguo.find().sort({release: 1})
 db.baoguo.find().sort({release: -1})
 db.baoguo.find().sort({release: 1}).limit(3).skip(6)
 db.baoguo.find().limit(3).skip(6).sort({release: 1})
+db.col.find({},{"title":1,_id:0}).limit(1).skip(1).sort({"likes":-1}) # skip 跳过几个
+db.col.find({post_text:{$regex:"runoob"}})
+db.Student.find({},{}).limit().skip().sort().count().distinct()
 db.baoguo.find({$or:[{release: '2020-12-04'}, {release: '2020-12-05'}]})
 db.baoguo.findOne()
 db.baoguo.find().count()
 db.movies.find({rt: {$gte: '2020-01-01'}}, {nm: 1, _id: 0, rt: 1}).sort({rt: -1}).limit(3).skip(3)
 ```
 
-## 基础操作
-- 连接数据库: `mongodb://admin:123456@localhost/test`
-```bash
-show dbs;
-use db_name; # 既是使用又是创建
-db.dropDatabase() # 删除本数据库
-db.createCollection("freedom")
-show tables;
-db.table_name.insert({"a": "b"})
-db.table_name.find()
-db.table_name.find({"a": "b"})
-document=({
-    title: 'super', 
-    url: 'http://www.baidu.com',
-    tags: ['mongodb', 'database', 'NoSQL'],
-    age: 100
-});
-db.table_name.insert(document)
-var res = db.table_name.insertMany([{"b": 3}, {'c': 4}])
-db.table_name.drop() # 删除表
-db.table_name.update({'title':'super'},{$set:{'title':'MongoDB'}},{upsert: true},{multi:true})
-db.table_name.update({"count":{$gt:4}},{$set: {"test5": "OK"}},true,false);
-db.table_name.find().pretty()
-db.col.remove({'title':'super'})
-db.col.deleteMany({'title': 'super'})
-db.col.find({likes : {$lt :200, $gt : 100}})
-db.col.find({title:/^教/})
-db.col.find({},{"title":1,_id:0}).limit(1).skip(1) # skip 跳过几个
-db.col.find({},{"title":1,_id:0}).sort({"likes":-1})
-db.posts.find({post_text:{$regex:"runoob"}})
-
-db,show dbs,use Student,drop names
-db.Student.insert({})
-db.Student.update({},{$set:{}},{multi:true})
-db.Student.remove({})
-db.Student.find({},{}).limit().skip().sort().count().distinct()
-
-db,show dbs,use Student,drop Teacher
-db.Student.insert({})
-db.Student.update({},{$set:{}},{multi:true})
-db.Student.remove({})
-db.Student.find({},{}).limit().skip().sort().count().distinct()
-mysql	insert update delete select
-redis	set	set	del	get
-mongodb	insert	update	remove	find,aggregate
-```
 ```
 $gt -------- greater than  >
 $gte ------- gt equal  >=
@@ -347,6 +276,7 @@ db.changeUserPassword("username","newpassword")
 # 查看用户信息
 db.getUser("username")
 ```
+
 # js支持
 
 ```javascript
