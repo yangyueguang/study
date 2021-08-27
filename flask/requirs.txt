@@ -1,0 +1,16 @@
+Flask
+Flask-Migrate
+flask_cors
+Flask-Script
+flask-jwt-extended
+PyMySQL
+SQLAlchemy
+marshmallow
+marshmallow-sqlalchemy
+vthread
+retry
+requests
+gunicorn
+cython
+colorama==0.4.4
+
