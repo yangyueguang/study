@@ -45,7 +45,7 @@ Person.work();
 ```
 
 # 三、note
-1. rem
+1. rem 引入到入口文件用于横竖屏自动切换
 ```javascript
 (function(doc, win) {
     var docEl = doc.documentElement,
