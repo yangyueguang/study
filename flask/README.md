@@ -4,6 +4,7 @@
 本框架弃用flask推荐的sqlalchemy，采用Django的orm，操作方便  
 所以多写了两个Django的文件settings.py和manage.py用于数据迁移
 ```bash
+python3 manage.py check
 python3 manage.py makemigrations app
 python3 manage.py migrate
 ```

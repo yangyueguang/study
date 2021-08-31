@@ -5,6 +5,7 @@ Flask-Script
 flask-jwt-extended
 PyMySQL
 Django
+mysqlclient
 SQLAlchemy
 marshmallow
 marshmallow-sqlalchemy

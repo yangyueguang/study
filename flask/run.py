@@ -1,24 +1,25 @@
 # coding: utf-8
 import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+from django.core.wsgi import get_wsgi_application
+get_wsgi_application()
 import json
 from flask import Flask, jsonify
 from flask_cors import CORS
 from tools import dlog, Dict
-from app import server
+from app.index import server
 from flask.wrappers import Request, Response
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
-from django.core.wsgi import get_wsgi_application
-get_wsgi_application()
+
 
 
 class ApiFlask(Flask):
     def make_response(self, rv):
-        if isinstance(rv, dict):
-            if 'r' not in rv:
-                rv['r'] = 0
-            rv = ResponseMid(rv)
-        if isinstance(rv, ResponseMid):
-            return rv.to_response()
+        # if isinstance(rv, dict):
+        #     if 'r' not in rv:
+        #         rv['r'] = 0
+        #     rv = ResponseMid(rv)
+        # if isinstance(rv, ResponseMid):
+        #     return rv.to_response()
         return Flask.make_response(self, rv)
 
 
