@@ -1,19 +1,7 @@
 # Study 学习资料
 ## 第三方库
-### [1. 讯飞输入法](https://www.xfyun.cn) 
-与语音有关的人工智能与智慧解决方案
-### [2. 必应](https://cn.bing.com)
-必应搜索必应翻译等
-### [3. MobTech](http://www.mob.com)
-推送、分享与手机验证码
-### [4. LeanCloud](https://www.leancloud.cn)
-数据存储、即时通讯、推送与短信
-### [5. 融云](https://developer.rongcloud.cn)
-即时通讯
-### [6. Google](https://developers.google.com/products)
-谷歌、人类科技的未来
-### [7. 聚合数据](https://www.juhe.cn)
-综合API
+### [wewechat](https://github.com/trazyn/weweChat) electron wechat
+
 
 ## 数据来源
 1. [百度指数](http://index.baidu.com)
