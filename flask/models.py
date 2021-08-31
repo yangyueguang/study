@@ -2,7 +2,23 @@
 import datetime
 from flask_sqlalchemy import SQLAlchemy, BaseQuery, Model
 
+class BaseMixin(object):
+    @classmethod
+    def create(cls, **kw):
+        session = db.session
+        if 'id' in kw:
+            obj = session.query(cls).get(kw['id'])
+            if obj:
+                return obj
+        obj = cls(**kw)
+        session.add(obj)
+        session.commit()
+        return obj
 
+    def __eq__(self, other):
+        return getattr(self, 'id') == getattr(other, 'id')
+
+    
 class BaseModel(Model):
     create_at = Column(DateTime, default=datetime.utcnow())
     
@@ -25,7 +41,7 @@ class Query(BaseQuery):
 db = SQLAlchemy(query_class=Query, model_class=BaseModel)
 
 
-class Model(db.Model):
+class Model(BaseMixin, db.Model):
     __abstract__ = True
     id = db.Column(db.INTEGER, autoincrement=True, primary_key=True)
     active = db.Column(db.BOOLEAN, default=True, nullable=False)
