@@ -1,6 +1,18 @@
 # coding: utf-8
 import datetime
+from flask import json
 from flask_sqlalchemy import SQLAlchemy, BaseQuery, Model
+class DateTimeEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+        elif isinstance(o, bytes):
+            return o.decode('utf-8')
+
+        return json.JSONEncoder.default(self, o)
+
+        # return Response(json.dumps(self.value, cls=DateTimeEncoder),
 
 class BaseMixin(object):
     @classmethod
