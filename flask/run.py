@@ -31,6 +31,18 @@ class ResponseMid(Response):
         super(ResponseMid, self).__init__(response, status, headers, mimetype, **kwargs)
 
 
+        
+class ApiFlask(Flask):
+    def make_response(self, rv):
+        if isinstance(rv, dict):
+            if 'r' not in rv:
+                rv['r'] = 0
+            rv = ResponseMid(rv)
+        if isinstance(rv, ResponseMid):
+            return rv.to_response()
+        return Flask.make_response(self, rv)
+    
+    
 def load_conf(app: Flask):
     app.debug = True
     app.config['ROOT_DIR'] = '.'
