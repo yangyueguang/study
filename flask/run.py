@@ -1,14 +1,25 @@
 # coding: utf-8
+import os
 import json
-from flask import Flask
-from flask import jsonify
+from flask import Flask, jsonify
 from flask_cors import CORS
-from app.models import db
-from flask_migrate import Migrate
-from app.tools import dlog
-from app.tools import Dict
-from flask.wrappers import Request
-from flask.wrappers import Response
+from tools import dlog, Dict
+from app import server
+from flask.wrappers import Request, Response
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+from django.core.wsgi import get_wsgi_application
+get_wsgi_application()
+
+
+class ApiFlask(Flask):
+    def make_response(self, rv):
+        if isinstance(rv, dict):
+            if 'r' not in rv:
+                rv['r'] = 0
+            rv = ResponseMid(rv)
+        if isinstance(rv, ResponseMid):
+            return rv.to_response()
+        return Flask.make_response(self, rv)
 
 
 class Abort(Exception):
@@ -31,26 +42,12 @@ class ResponseMid(Response):
         super(ResponseMid, self).__init__(response, status, headers, mimetype, **kwargs)
 
 
-        
-class ApiFlask(Flask):
-    def make_response(self, rv):
-        if isinstance(rv, dict):
-            if 'r' not in rv:
-                rv['r'] = 0
-            rv = ResponseMid(rv)
-        if isinstance(rv, ResponseMid):
-            return rv.to_response()
-        return Flask.make_response(self, rv)
-    
-    
 def load_conf(app: Flask):
     app.debug = True
     app.config['ROOT_DIR'] = '.'
     app.config['BASE_DIR'] = '.'
     app.config['TZ'] = 'Asia/Shanghai'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@127.0.0.1:3306/super'
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 60 * 60 * 24  # token过期时间
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 60 * 60 * 24
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = 30
     app.config["SSO_LOGIGN"] = True  # 是否支持单点登录
     app.config["SECRET_KEY"] = "secret$%^&*key!@#$%^774ST$%^&*(you#!!@%never!@#$%^&guess"
@@ -105,17 +102,14 @@ def register_handlers(app):
 
 
 def register_endpoints(flask_app):
-    from app.services import server
     flask_app.register_blueprint(server, url_prefix='/api')
 
 
 def create_app():
-    app = Flask(__name__, template_folder='data/template', static_folder="data/static", static_url_path='/static')
+    app = ApiFlask(__name__, template_folder='data/template', static_folder="data/static", static_url_path='/static')
     load_conf(app)
     register_handlers(app)
     register_endpoints(app)
-    db.init_app(app)
-    Migrate(app, db)
     return app
 
 

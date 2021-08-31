@@ -1,39 +1,13 @@
 # coding: utf-8
+# flask 框架推荐的orm，弃用，采用django的orm
 import datetime
-from flask import json
+from sqlalchemy import Column, DateTime
 from flask_sqlalchemy import SQLAlchemy, BaseQuery, Model
-class DateTimeEncoder(json.JSONEncoder):
 
-    def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-        elif isinstance(o, bytes):
-            return o.decode('utf-8')
 
-        return json.JSONEncoder.default(self, o)
-
-        # return Response(json.dumps(self.value, cls=DateTimeEncoder),
-
-class BaseMixin(object):
-    @classmethod
-    def create(cls, **kw):
-        session = db.session
-        if 'id' in kw:
-            obj = session.query(cls).get(kw['id'])
-            if obj:
-                return obj
-        obj = cls(**kw)
-        session.add(obj)
-        session.commit()
-        return obj
-
-    def __eq__(self, other):
-        return getattr(self, 'id') == getattr(other, 'id')
-
-    
 class BaseModel(Model):
-    create_at = Column(DateTime, default=datetime.utcnow())
-    
+    create_at = Column(DateTime, default=datetime.datetime.now)
+
     def to_dict(self):
         columns = self.__table__.columns.keys()
         return {key: getattr(self, key) for key in columns}
@@ -51,6 +25,23 @@ class Query(BaseQuery):
 
 
 db = SQLAlchemy(query_class=Query, model_class=BaseModel)
+
+
+class BaseMixin(object):
+    @classmethod
+    def create(cls, **kw):
+        session = db.session
+        if 'id' in kw:
+            obj = session.query(cls).get(kw['id'])
+            if obj:
+                return obj
+        obj = cls(**kw)
+        session.add(obj)
+        session.commit()
+        return obj
+
+    def __eq__(self, other):
+        return getattr(self, 'id') == getattr(other, 'id')
 
 
 class Model(BaseMixin, db.Model):
@@ -77,6 +68,11 @@ class Model(BaseMixin, db.Model):
         return res
 
 
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:12345678@127.0.0.1:3306/super'
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+# db.init_app(app)
+
+
 # 模型文件
 class LogModel(Model):
     __tablename__ = 'logs'
@@ -86,3 +82,5 @@ class LogModel(Model):
     code = db.Column(db.INTEGER, nullable=False, default=500)
     message = db.Column(db.String(255))
     statistics = db.Column(db.JSON, default={}, doc='统计信息')
+
+

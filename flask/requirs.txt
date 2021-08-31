@@ -4,6 +4,7 @@ flask_cors
 Flask-Script
 flask-jwt-extended
 PyMySQL
+Django
 SQLAlchemy
 marshmallow
 marshmallow-sqlalchemy

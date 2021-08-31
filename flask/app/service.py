@@ -1,5 +1,5 @@
 from . import api, server
-from app.models import LogModel
+from .models import User
 
 
 @server.route('/list', methods=['GET'])
@@ -10,8 +10,6 @@ def get_list():
 # 自定义
 @api('/index', methods=['GET', 'POST'])
 def get_something(body):
-    ds = LogModel(server='dd', message='ddddssss')
-    ds.save()
-    res = LogModel.query
-    return res
-
+    user = User(name="super", phone="188")
+    user.save()
+    return {'data': [(i.name, i.phone) for i in User.objects.all()]}

@@ -1,8 +1,9 @@
 import traceback
 import threading
 import logging
+import json
+import datetime
 import logging.handlers
-import app.config as conf
 import colorama
 from logging import RootLogger
 from requests.sessions import Session
@@ -79,6 +80,16 @@ def request_all(method, url, param_list, thread=5, **kwargs):
             executor.submit(request, method, url, p, **kwargs)
 
 
+# Response(json.dumps(self.value, cls=DateTimeEncoder),
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime.datetime):
+            return o.isoformat()
+        elif isinstance(o, bytes):
+            return o.decode('utf-8')
+        return json.JSONEncoder.default(self, o)
+
+
 class LogFormatter(logging.Formatter):
     def __init__(self):
         logging.Formatter.__init__(self, fmt='%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
@@ -110,14 +121,14 @@ class Dlog(RootLogger):
     def __new__(cls, *args, **kwargs):
         if not Dlog._instance:
             with Dlog._instance_lock:
-                handler = logging.handlers.TimedRotatingFileHandler(filename=conf.LOG_PATH, when="D", backupCount=100)
+                handler = logging.handlers.TimedRotatingFileHandler(filename='data/root.log', when="D", backupCount=100)
                 handler.suffix = "%Y-%m-%d.log"
                 fmt = LogFormatter()
                 handler.setFormatter(fmt)
                 log = logging.getLogger()
                 log.setLevel(logging.INFO)
                 log.addHandler(handler)
-                if conf.IS_DEBUG:
+                if True:
                     console = logging.StreamHandler()
                     console.setFormatter(fmt)
                     log.addHandler(console)
