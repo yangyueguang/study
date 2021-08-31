@@ -1,6 +1,14 @@
 # coding: utf-8
 import datetime
-from flask_sqlalchemy import SQLAlchemy, BaseQuery
+from flask_sqlalchemy import SQLAlchemy, BaseQuery, Model
+
+
+class BaseModel(Model):
+    create_at = Column(DateTime, default=datetime.utcnow())
+    
+    def to_dict(self):
+        columns = self.__table__.columns.keys()
+        return {key: getattr(self, key) for key in columns}
 
 
 class Query(BaseQuery):
@@ -14,7 +22,7 @@ class Query(BaseQuery):
         return [i.json() for i in self]
 
 
-db = SQLAlchemy(query_class=Query)
+db = SQLAlchemy(query_class=Query, model_class=BaseModel)
 
 
 class Model(db.Model):
