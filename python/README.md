@@ -14,6 +14,7 @@
 10. [python-box](https://github.com/cdgriffith/Box) 把字典转换成可以用点语法调用的方式。
 11. [pywebview](https://github.com/r0x0r/pywebview/) [使用说明](https://pywebview.flowrl.com/examples/) 用python构建web界面。
 12. [wechatpy](https://github.com/wechatpy/wechatpy)微信开发包
+13. [wxpy](https://wxpy.readthedocs.io/zh/latest/index.html)微信聊天
 
 ```python
 import asyncio
