@@ -22,10 +22,13 @@ CMD /bin/bash
 
 * vue
 ```dockerfile
-FROM node:14.17.4 as node
-WORKDIR /app
-COPY script /app
+FROM node:16 as node
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ENV PYTHONUNBUFFERED 1
+ENV TZ=Asia/Beijing
 ENV PATH /app/node_modules/.bin:$PATH
+COPY script /app
+WORKDIR /app
 RUN npm install yarn -g
 RUN npm install @vue/cli@3.7.0 -g
 COPY package.json yarn.lock ./
