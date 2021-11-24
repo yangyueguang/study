@@ -3,6 +3,8 @@
 ```dockerfile
 FROM centos:latest
 USER root
+MAINTAINER xuechao <2829969299@qq.com>
+ENV PYTHONUNBUFFERED 1
 ENV PATH=$PATH:/usr/node/bin
 RUN mkdir /app
 WORKDIR /app
