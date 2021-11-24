@@ -25,10 +25,10 @@ CMD /bin/bash
 * vue
 ```dockerfile
 FROM node:16 as node
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ENV PYTHONUNBUFFERED 1
 ENV TZ=Asia/Beijing
 ENV PATH /app/node_modules/.bin:$PATH
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY script /app
 WORKDIR /app
 RUN npm install yarn -g
