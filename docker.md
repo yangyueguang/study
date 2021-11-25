@@ -9,7 +9,7 @@ ENV PATH=$PATH:/usr/node/bin
 RUN mkdir /app
 WORKDIR /app
 RUN yum install -y langpacks-zh_CN && echo "LANG=zh_CN.utf8" > /etc/locale.conf
-RUN yum install -y wget unzip cronie crontabs python3 nginx openssl gcc automake autoconf libtool make
+RUN yum install -y wget unzip cronie crontabs python3 nginx openssl gcc automake autoconf libtool make mesa-libGL.x86_64
 RUN wget --no-cache https://nodejs.org/dist/v14.17.4/node-v14.17.4-linux-x64.tar.xz
 RUN tar -xvf node-v14.17.4-linux-x64.tar.xz && mv node-v14.17.4-linux-x64 /usr/node && rm -f node-v14.17.4-linux-x64.tar.xz
 RUN pip3 install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip
