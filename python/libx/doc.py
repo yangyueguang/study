@@ -4,6 +4,13 @@ import math
 import fitz
 import numpy as np
 import pandas as pd
+import docx
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_TAB_ALIGNMENT
+from docx.shared import Inches, Cm, Pt, RGBColor
+from docx.table import _Row, _Cell, Table
+from docx.oxml import table, text, ns, OxmlElement
+from docx.text.paragraph import Paragraph
 from .document import Document
 
 
@@ -284,7 +291,7 @@ class ImageLayout(Serializable):
         pass
 
 
-class Doc(Document):
+class Pdf(Document):
     def __init__(self, file, password: str = None, **kwargs):
         self.pages: [Page] = []
         super(Doc, self).__init__(file, password, **kwargs)
@@ -335,3 +342,92 @@ class Doc(Document):
     def html(self) -> str:
         return super(Doc, self).html()
 
+
+class Doc(docx.document.Document):
+    def __init__(self, path):
+        doc = docx.Document(path)
+        super().__init__(doc._element, doc._part)
+        self.path = path
+        
+    def items(self):
+        for i in self.element.body.iterchildren():
+            if isinstance(i, table.CT_Tbl):
+                yield Table(i, self)
+            elif isinstance(i, text.paragraph.CT_P):
+                yield Paragraph(i, self)
+        
+    def add_table(self, rows, cols, style='Table_Grid', df=None):
+        if df is None:
+            return super(Doc, self).add_table(rows, cols, style)
+        table = super(Doc, self).add_table(*(df.shape), style)
+        for i in range(df.shape[0]):
+            for j in range(df.shape[1]):
+                table.cell(i, j).text = str(df.iloc[i, j])
+        self.beautify_table(table)
+        return table
+
+    def save(self, path_or_stream):
+        super(Doc, self).save(path_or_stream)
+
+    def move_table_after(self, table, paragraph):
+        paragraph._p.addnext(table._tbl)
+
+    def delete_paragraph(self, paragraph):
+        p = paragraph._element
+        p.getparent().remove(p)
+        paragraph._p = paragraph._element = None
+
+    def merge_cell(self, a: _Cell, b: _Cell):
+        a.merge(b)
+        if a.text.strip('\n') != b.text.strip('\n'):
+            a.text = (a.text + b.text).replace('\n', '')
+
+    def beautify_paragraph(self, p, size=0, bold=False, color=RGBColor(0, 0, 0), alignment=WD_PARAGRAPH_ALIGNMENT.LEFT):
+        p.alignment = alignment
+        if p.runs:
+            run = p.runs[0]
+        else:
+            run = p.add_run(p.text)
+        run.bold = bold
+        run.font.size = Pt(size) if size else None
+        run.font.color.rgb = color
+
+    def beautify_table(self, table):
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        for cell in table.rows[0].cells:
+            self.beautify_paragraph(cell.paragraphs[0], bold=True, alignment=WD_PARAGRAPH_ALIGNMENT.CENTER)
+        border_map = {'w:sz': '12', 'w:val': 'single', 'w:color': '000000', 'w:space': '0', 'w:shadow': '12'}
+        twidth = table._tblPr.first_child_found_in('w:tblW')
+        twidth.set(ns.qn('w:w'), '6000')
+        twidth.set(ns.qn('w:type'), 'pct')
+        tborder = table._tblPr.first_child_found_in('w:tblBorders')
+        if tborder is None:
+            tborder = OxmlElement('w:tblBorders')
+            table._tblPr.append(tborder)
+        for edge in ['top', 'right', 'bottom', 'left']:  # 'insideH', 'insideV'
+            element = tborder.find(ns.qn(f'w:{edge}'))
+            if element is None:
+                element = OxmlElement(f'w:{edge}')
+                tborder.append(element)
+            for k, v in border_map.items():
+                element.set(ns.qn(k), v)
+
+    def fill(self, table_map, paragraph_map, bold_names=None):
+        bold_names = bold_names or []
+        for p in self.paragraphs:
+            if p.text.startswith('{{p.'):
+                p.text = paragraph_map.get(p.text[4:-2], '')
+            elif p.text.startswith('{{table.'):
+                df = table_map.get(p.text[4:-2]).T.reset_index().T
+                table = self.add_table(rows=0, cols=0, df=df)
+                self.move_table_after(table, p)
+                self.delete_paragraph(p)
+        for t in self.tables:
+            for r in t.rows:
+                is_bold = r.cells[0].text in bold_names
+                for c in r.cells:
+                    if c.text.startswith('{{p.'):
+                        c.text = paragraph_map.get(c.text[4:-2], c.text)
+                    if is_bold:
+                        self.beautify_paragraph(c.paragraphs[0], bold=True)
+        print('over')
