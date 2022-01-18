@@ -39,7 +39,7 @@ vi /etc/docker/daemon.json
 ```
 
 ## 三、Docker 基础用法
-![docker架构][https://img2018.cnblogs.com/blog/1491349/202002/1491349-20200207125305272-1620649644.png]
+![https://img2018.cnblogs.com/blog/1491349/202002/1491349-20200207125305272-1620649644.png]
 
 
 ```bash
@@ -104,17 +104,15 @@ Run 'docker COMMAND --help' for more information on a command.
 sudo curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
-3. 安装docker maching
-```bash
-base=https://github.com/docker/machine/releases/download/v0.16.0
-curl -L $base/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine
-sudo install /tmp/docker-machine /usr/local/bin/docker-machine
-```
-4. 安装容器可视化平台portainer
+3. 安装容器可视化平台portainer
 `docker pull portainer/portainer && docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer`
-5. docker卸载
+4. docker卸载
 `sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux  docker-engine-selinux docker-engine`
-6. 常用命令
+5. 常用命令
+```bash
+docker run -d -p 8001:8000 -v /Users/supers/Downloads/root.log:/app/data/root.log --name some hub.docker.com/yangyueguang/flask:latest 
+curl localhost:8001/api/list
+```
 ```bash
 systemctl start docker
 systemctl enable docker
@@ -132,7 +130,6 @@ docker container prune -f
 docker logs xxxxx
 docker image prune -a
 docker history nginx:v2
-
 ```
 
 ## 四、构建自己的docker
@@ -180,9 +177,9 @@ docker-compose.yml
 version: "3.5"
 services:
   web:
-    image: centos:latest
-    hostname: centos
-    container_name: filebeat
+    image: yangyueguang/flask:latest
+    hostname: flask
+    container_name: super
     user: root
     restart: always
     deploy:
@@ -190,23 +187,23 @@ services:
     environment:
       - domain=abc.com
     ports:
-      - 8080:8080
+      - 8001:8000
     volumes:
-      - ./data:/app/data
+      - /Users/supers/Downloads/root.log:/app/data/root.log
     networks:
        - elk
   project.wsgi:
-    image: "way:latest"
+    image: yangyueguang/flask:latest
     command: bash -c "gunicorn -w 1 -k gevent -b 0.0.0.0:8085 projects.wsgi:application"
     expose:
       - "8085"
     ports:
-      - 8085:8085
+      - 8085:8000
     environment:
       - host=196.196.196.87
       - DJANGO_SETTINGS_MODULE=projects.settings
     volumes:
-      - /root/super/static:/app/static
+      - /Users/supers/Downloads/root.log:/app/data/root.log
 
 networks:
     elk:
