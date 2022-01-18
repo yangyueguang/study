@@ -192,7 +192,7 @@ services:
       - /Users/supers/Downloads/root.log:/app/data/root.log
     networks:
        - elk
-  project.wsgi:
+  bacckyz:
     image: yangyueguang/flask:latest
     command: bash -c "gunicorn -w 1 -k gevent -b 0.0.0.0:8085 projects.wsgi:application"
     expose:
