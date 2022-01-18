@@ -16,6 +16,17 @@ yum install -y docker
 # Debian -> Ubuntu
 apt-get install -y docker
 ```
+1. 在线安装指定版本
+`curl https://releases.rancher.com/install-docker/18.06.sh | sh`
+2. 安装docker-compose
+```bash
+sudo curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+3. 安装容器可视化平台portainer
+`docker pull portainer/portainer && docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer`
+4. docker卸载
+`sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux  docker-engine-selinux docker-engine`
 ### 1.docker 权限问题
 ```bash
 sudo groupadd docker
@@ -96,19 +107,7 @@ Commands:
 Run 'docker COMMAND --help' for more information on a command.
 ```
 
-### docker
-1. 在线安装指定版本
-`curl https://releases.rancher.com/install-docker/18.06.sh | sh`
-2. 安装docker-compose
-```bash
-sudo curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-```
-3. 安装容器可视化平台portainer
-`docker pull portainer/portainer && docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer`
-4. docker卸载
-`sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux  docker-engine-selinux docker-engine`
-5. 常用命令
+### docker常用命令
 ```bash
 docker run -d -p 8001:8000 -v /Users/supers/Downloads/root.log:/app/data/root.log --name some hub.docker.com/yangyueguang/flask:latest 
 curl localhost:8001/api/list
