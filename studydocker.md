@@ -249,3 +249,14 @@ k8s是为容器服务而生的一个可移植容器的编排管理工具，越�
 * 服务弹性扩容
 * 横向扩容
 * 存储卷挂载
+
+## 九、 nvidia-docker
+```bash
+nvidia-docker：nvidia-container-toolkit的安装方式
+docker run -itd --gpus all --name 容器名 -e NVIDIA_DRIVER_CAPABILITIES=compute,utility -e NVIDIA_VISIBLE_DEVICES=all 镜像名
+docker run --gpus=all --rm nvidia/cuda:10.0-base nvidia-smi
+### nvidia-docker2
+docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all --rm nvidia/cuda:10.0-base nvidia-smi
+#or 
+nvidia-docker run -e NVIDIA_VISIBLE_DEVICES=all --rm nvidia/cuda:10.0-base nvidia-smi
+```
