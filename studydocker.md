@@ -39,7 +39,7 @@ vi /etc/docker/daemon.json
 ```
 
 ## 三、Docker 基础用法
-![https://img2018.cnblogs.com/blog/1491349/202002/1491349-20200207125305272-1620649644.png]
+![](https://img2018.cnblogs.com/blog/1491349/202002/1491349-20200207125305272-1620649644.png)
 
 
 ```bash
@@ -164,8 +164,8 @@ ENTRYPOINT /app/run.sh
 ## 五、推送镜像到自己的仓库
 [https://hub.docker.com](https://hub.docker.com)
 ```bash
-    docker login hub.docker.com -u xuechao -p $password
-    docker tag $docker_name hub.docker.com/yangyueguang/test:latest
+    docker login hub.docker.com -u yangyueguang -p $password
+    docker tag $docker_name yangyueguang/test:latest
     docker push $image_path:$image_tag
     docker run -itd -p 5001:5001 --name=$image_name --restart=always -v /logs:/logs/logs $image_path:$image_tag
     docker stack deploy --with-registry-auth --prune -c docker-compose.yml monitor
@@ -221,11 +221,12 @@ docker-compose logs nginx -f 100 -t
 ## 七、dockekr集群
 ```bash
 docker stack deploy --with-registry-auth --prune -c ./docker-compose.yml stack_name
-docker stack service ls
+docker stack ls
+docker service ls
 docker stack service logs nginx
-docker stack config
-docker stack restart nginx
-docker stack rm nginx
+docker service update --force <id>
+docker stack rm <stack_name>
+docker stack services <stack_name>
 docker swarm init
 docker node ls
 docker swarm join --token SWMTKN-1-03dn2trh2hlm5ypgg7ngmknfn9qaue92utlltbzrizzini011u-2z70ms05y0m9419hbntbba8ru 192.168.65.3:2377
