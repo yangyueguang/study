@@ -126,4 +126,16 @@ if __name__ == "__main__":
     http_server = HTTPServer(app)
     http_server.bind(8000)
     http_server.start()
+    
+    
+### test
+from socket import *
+import json
+ADDR = ("192.168.2.173", 8887)
+sock = socket(AF_INET, SOCK_STREAM)
+sock.connect(ADDR)
+sock.send(json.dumps({"symbol": "audusd@FXALL"}).encode('utf-8'))
+while True:
+    res = sock.recv(1024)
+    print(res, '#######33')
 
