@@ -87,6 +87,40 @@ class HTTPServer(object):
         self.server_socket.bind(("", port))
 
 
+class SocketServer():
+
+    connections = []
+
+    def __init__(self, addr):
+        self.addr = addr
+
+    def get_connection(self):
+        sock = socket(AF_INET, SOCK_STREAM)
+        sock.bind(self.addr)
+        sock.listen(10)
+        while True:
+            conn, addr = sock.accept()
+            Thread(target=self.on_open_before, args=(conn, addr)).start()
+
+    def on_open_before(self, conn, addr):
+
+        byte_msg_type = ""
+        while True:
+            byte_data = conn.recv(1024)
+            byte_msg_type += byte_data.decode('utf8')
+            if byte_msg_type.endswith('\n'):
+                break
+        msg = json.loads(byte_msg_type.replace('\r\n', ''))
+        self.on_open(msg, conn, addr)
+
+    def on_open(self, msg, conn, addr):
+        pass
+    def on_close(self):
+        pass
+    def start(self):
+        Thread(target=self.get_connection , args=()).start()
+        
+        
 if __name__ == "__main__":
     app = Application([("/", say_haha)], './html')
     http_server = HTTPServer(app)
