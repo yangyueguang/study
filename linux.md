@@ -448,6 +448,32 @@ options=username=$remote_username,password=$remote_password,iocharset=utf8
 mount -t cifs -o $options //$remote_ip$remote_dir $local_dir
 echo '//$remote_ip$remote_dir $local_dir cifs $options 0 0' >> /etc/fstab
 ```
+### 2. 共享磁盘目录 192.168.1.0:/data  ==> 192.168.1.1:/data
+```bash
+#on 192.168.1.0
+yum install -y nfs-utils
+echo "/data *(rw,sync,no_root_squash,no_all_squash)" >> /etc/exports
+exportfs -r
+systemctl enable rpcbind nfs
+systemctl start rpcbind nfs
+showmount -e localhost
+
+#on 192.168.1.1
+yum install -y nfs-utils
+systemctl enable rpcbind
+systemctl start rpcbind
+showmount -e 192.168.1.0
+mount -t nfs 192.168.1.0:/data /data
+mount
+df -h
+#192.168.0.110:/data on /data type nfs4 (rw,relatime,sync,vers=4.1,rsize=131072,wsize=131072,namlen=255,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=192.168.0.100,local_lock=none,addr=192.168.0.101)
+#这说明已经挂载成功了
+# 取消挂载
+umount -l /data
+# 开机自动挂载
+echo "192.168.1.0:/data     /data                   nfs     defaults        0 0" >> /etc/fstab
+systemctl daemon-reload
+```
 
 ### 2. 使用虚拟环境安装python3
 ```bash
