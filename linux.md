@@ -623,3 +623,248 @@ function help() {
 }
 
 ```
+```bash
+
+echo -e "\033[31m Start run shell.Please continue to enter or ctrl+C to cancel \033[0m"
+
+PATH=$PATH:/usr/local/bin
+if [[ "$(whoami)" != "root" ]]; then
+  sudo su
+  if [[ "$(whoami)" != "root" ]]; then
+    echo "you need a root role ."
+    exit 1
+  fi
+fi
+
+
+function get_platform() {
+    if [ -e /etc/redhat-release ]
+    then
+      platform=centos
+    elif [ -e /etc/lsb-release ]
+    then
+      platform=ubuntu
+    else
+      platform=undefined
+    fi
+    return $platform
+}
+get_platform
+echo '当前系统是：$?'
+
+function get_local_ip() {
+    ip=`ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:"`
+    ip=`ip addr | awk '/^[0-9]+: / {}; /inet.*global/ {print gensub(/(.*)\/(.*)/, "\\1", "g", $2)}'`
+    return $ip
+}
+
+# 读取账号和IP
+function read_input() {
+  get_local_ip
+  master=$?
+  master_user=`whoami`
+  read -p "Input worker1 ip:" worker1
+  read -p "Input worker1 username:" worker1_user
+  read -p "Input worker2 ip:" worker2
+  read -p "Input worker2 username:" worker2_user
+}
+
+# 配置域名
+function set_host() {
+  echo "$master node1" >> /etc/hosts
+  echo "$worker1 node2" >> /etc/hosts
+  echo "$worker2 node3" >> /etc/hosts
+}
+
+# 配置免密登陆
+function secret_free_login() {
+  ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa
+  echo "please input worker1 password:"
+  ssh-copy-id -i /root/.ssh/id_rsa.pub $worker1_user@$worker1
+  if [ $? -ne 0 ]; then
+    echo "worker1 ssh-copy-id failed"
+    if [ $worker1_user = root ]
+    then
+      home1=/root
+    else
+      home1=/home/$worker1_user
+    fi
+    echo "please run: scp -i xxx.pem /root/.ssh/id_rsa.pub $worker1_user@$worker1:$home1/.ssh/authorized_keys"
+  else
+    echo "worker1 free login succeed"
+  fi
+  echo "please input worker2 password:"
+  ssh-copy-id -i /root/.ssh/id_rsa.pub $worker2_user@$worker2
+  if [ $? -ne 0 ]; then
+    echo "worker2 ssh-copy-id failed"
+    if [ $worker2_user = root ]
+    then
+      home2=/root
+    else
+      home2=/home/$worker2_user
+    fi
+    echo "please run: scp -i xxx.pem /root/.ssh/id_rsa.pub $worker2_user@$worker2:$home2/.ssh/authorized_keys"
+  else
+    echo "worker2 free login succeed"
+  fi
+}
+
+# 修改配置
+function edit_config() {
+    echo "nothing need to do"
+}
+
+# 验证是否联网
+function network() {
+    code=`curl -I -s --connect-timeout 1 www.baidu.com -w %{http_code} | tail -n1`
+    if [ $code = 200 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+# 安装常用命令
+function install() {
+    network
+    if [ $? -eq 0 ];then
+      if [[ $platform = centos ]]
+      then
+        yum install -y wget vim curl unzip docker docker-compose nfs-utils
+      else
+        apt-get install -y wget vim curl unzip docker docker-compose nfs-utils
+      fi
+    else
+      echo "can not connect internet, install software local now"
+      local_install_docker
+      install_docker_compose
+      install_nfs_utils
+    fi
+}
+
+# 配置共享磁盘
+function shared_disk() {
+    mkdir -p /data/finone/
+    echo "/data *(rw,sync,no_root_squash,no_all_squash)" >> /etc/exports
+    exportfs -r
+    systemctl enable rpcbind nfs
+    systemctl start rpcbind nfs
+    showmount -e $master
+    mount_disk="sudo su && systemctl enable rpcbind && systemctl start rpcbind && mount -t nfs $master:/data/finone /data/finone"
+    ssh $worker1_user@$worker1 /bin/bash -c $mount_disk
+    ssh $worker2_user@$worker2 /bin/bash -c $mount_disk
+}
+
+# 配置swarm集群
+function swarm() {
+    docker swarm leave --force
+    join="sudo su && "`docker swarm init | grep "docker swarm join --token "`
+    ssh $worker1_user@$worker1 /bin/bash -c $join
+    ssh $worker2_user@$worker2 /bin/bash -c $join
+    docker node ls
+}
+
+# 载入镜像
+function load_images() {
+    docker load -i *.tar
+    docker images
+}
+
+# 启动服务
+function start() {
+    docker stack deploy --with-registry-auth -c ./docker-compose.yml ray
+}
+
+# 停止服务
+function stop() {
+  docker stack rm ray
+}
+
+# 查看信息
+function info() {
+    docker stack ls
+    docker ps
+    docker service ls
+}
+
+# run in worker
+function run_in_worker() {
+  install
+  load_images
+}
+
+# 总启动
+function run() {
+    read_input
+    set_host
+    secret_free_login
+    scp /etc/hosts $worker1_user@$worker1:/etc/hosts
+    scp /etc/hosts $worker2_user@$worker2:/etc/hosts
+    install
+    shared_disk
+    load_images
+    edit_config
+    ssh worker1_user@worker1 /bin/bash -c "cd /data/finone && source run.sh && run_in_worker"
+    ssh worker2_user@worker2 /bin/bash -c "cd /data/finone && source run.sh && run_in_worker"
+    swarm
+    start
+    info
+    echo "Congratulations every thine is OK! 👍👍👍🎉🎉🎉💐💐💐"
+}
+
+function install_nfs_utils() {
+    rpm -ivh *.rpm --nodeps
+}
+
+function install_docker_compose(){
+    # curl -L "https://github.com/docker/compose/releases/download/v2.4.0/docker-compose-$(uname -s)-$(uname -m)" > docker-compose
+    chmod +x docker-compose
+    mv docker-compose /usr/local/bin/docker-compose
+    docker-compose --version
+    echo "docker-compose installed successfully."
+}
+
+function local_install_docker() {
+    # wget https://download.docker.com/linux/static/stable/x86_64/docker-19.03.7.tgz > docker.tgz
+    tar -xzvf docker.tgz
+    mv docker/* /usr/local/bin
+    docker_service=`cat << EOF
+        [Unit]
+        Description=Docker Application Container Engine
+        Documentation=https://docs.docker.com
+        After=network-online.target firewalld.service
+        Wants=network-online.target
+
+        [Service]
+        Type=notify
+        # ExecStart的启动可选参数，可通过dockerd --help查看
+        ExecStart=/usr/local/bin/dockerd -H unix://var/run/docker.sock --data-root=/home/root/data/docker
+        ExecReload=/bin/kill -s HUP $MAINPID
+        TimeoutSec=0
+        RestartSec=2
+        Restart=always
+        StartLimitBurst=3
+        StartLimitInterval=60s
+        LimitNOFILE=infinity
+        LimitNPROC=infinity
+        LimitCORE=infinity
+        TasksMax=infinity
+        Delegate=yes
+        KillMode=process
+
+        [Install]
+        WantedBy=multi-user.target
+        EOF`
+    echo > /etc/systemd/system/docker.service
+    echo docker_service | while read line
+    do
+      echo $line >> /etc/systemd/system/docker.service
+    done
+    systemctl daemon-reload
+    systemctl start docker
+    systemctl enable docker
+    docker -v
+    docker images
+    docker ps
+    echo "docker installed successfully."
+}
+```
