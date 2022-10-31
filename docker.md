@@ -107,3 +107,8 @@ http {
 设置 .dockerignore 文件能防止 node_modules 和其他中间构建产物被复制到镜像中导致构建问题。  
 **/node_modules  
 **/dist
+
+### 使用本地构建
+构建之前在命令行中输入以下两行就好：
+export DOCKER_BUILDKIT=0
+export COMPOSE_DOCKER_CLI_BUILD=0
