@@ -12,16 +12,16 @@ WORKDIR /app
 RUN sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-*
 RUN sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
 RUN yum install -y langpacks-zh_CN && echo "LANG=zh_CN.utf8" > /etc/locale.conf
-RUN yum install -y wget unzip cronie crontabs python3 nginx openssl gcc automake autoconf libtool make mesa-libGL.x86_64
-RUN yum install -y lsof openssh-server passwd openssl openssh-clients which python3.9 rsync java
+RUN yum install -y wget unzip cronie crontabs nginx openssl gcc automake autoconf libtool make mesa-libGL.x86_64
+RUN yum install -y lsof openssh-server passwd openssl openssh-clients which python3.8 python38-devel rsync java git vim
 RUN wget --no-cache https://nodejs.org/dist/v14.17.4/node-v14.17.4-linux-x64.tar.xz
 RUN tar -xvf node-v14.17.4-linux-x64.tar.xz && mv node-v14.17.4-linux-x64 /usr/node && rm -f node-v14.17.4-linux-x64.tar.xz
-RUN pip3 install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip
+RUN rm -f /usr/local/bin/pip && rm -f /usr/bin/pip
+RUN ln -s /usr/bin/python3.8 /usr/bin/python && ln -s /usr/bin/pip3.8 /usr/bin/pip
+RUN pip install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip
 RUN pip install Cython --install-option="--no-cython-compile"
 RUN npm i yarn -g && npm i cnpm -g
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
-RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN echo "alias ll='ls -l'" >> ~/.bashrc
 CMD /bin/bash
 ```
