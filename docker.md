@@ -3,12 +3,11 @@
 ```dockerfile
 FROM centos:latest
 USER root
-MAINTAINER xuechao <2829969299@qq.com>
+MAINTAINER xuechao 2829969299@qq.com
 ENV PYTHONUNBUFFERED 1
 ENV PATH=$PATH:/usr/node/bin
 RUN mkdir /app
 WORKDIR /app
-
 RUN sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-*
 RUN sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
 RUN yum install -y langpacks-zh_CN && echo "LANG=zh_CN.utf8" > /etc/locale.conf
@@ -18,10 +17,12 @@ RUN wget --no-cache https://nodejs.org/dist/v14.17.4/node-v14.17.4-linux-x64.tar
 RUN tar -xvf node-v14.17.4-linux-x64.tar.xz && mv node-v14.17.4-linux-x64 /usr/node && rm -f node-v14.17.4-linux-x64.tar.xz
 RUN rm -f /usr/local/bin/pip && rm -f /usr/bin/pip
 RUN ln -s /usr/bin/python3.8 /usr/bin/python && ln -s /usr/bin/pip3.8 /usr/bin/pip
-RUN pip install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip
-RUN pip install Cython --install-option="--no-cython-compile"
-RUN npm i yarn -g && npm i cnpm -g
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
+RUN pip install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip Cython
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+RUN tar -zxf ta-lib-0.4.0-src.tar.gz && cd ta-lib && ./configure --prefix=/usr && make && make install
+RUN pip install TA-Lib && rm -rf ta-lib && rm -f ta-lib-0.4.0-src.tar.gz
+RUN npm i yarn -g && npm i cnpm -g
 RUN echo "alias ll='ls -l'" >> ~/.bashrc
 CMD /bin/bash
 ```
