@@ -23,3 +23,5 @@ setup(
     python_requires='>=3.7',
     install_requires=['numpy', 'pandas', 'scikit-image', 'matplotlib', 'opencv-python', 'pillow', 'python-docx']
 )
+# python setup.py sdist build
+# twine upload dist/*

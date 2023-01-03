@@ -86,27 +86,6 @@ class SunSpider(CrawlSpider):
         item['address'] = response.url
         yield item
 
-'''
-# 启动redis
-# 如果做分布式要解注释以下几个。redis_host redis_port 去重规则 调度规则 对列形式 管道文件要有scrapy_redis
-REDIS_HOST = '127.0.0.1'
-REDIS_PORT = 6379
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
-SCHEDULER = "scrapy_redis.scheduler.Scheduler"
-SCHEDULER_QUEUE_CLASS = "scrapy_redis.queue.SpiderQueue"
-ITEM_PIPELINES = {
-    'project.pipelines.YYPipeline': 300,
-    'scrapy_redis.pipelines.RedisPipeline': 400,
-}
-
-# 使用
-先连接同一个redis服务器
-1. 各个地址启动爬虫
-scrapy runspider $spider_py_path
-2. 在redis客户端发送一条消息
-> lpush $redis_key $start_url
-'''
-
 
 class MySpider(RedisSpider):
     name = 'YY'

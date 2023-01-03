@@ -1,9 +1,0 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.idea
-*.pyc
-dist
-py_extractor.egg-info

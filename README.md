@@ -1,24 +1,9 @@
 # Study 学习资料
 ## 第三方库
 ### [wewechat](https://github.com/trazyn/weweChat) electron wechat
-
-
-## 数据来源
-1. [百度指数](http://index.baidu.com)
-2. [阿里指数](https://alizs.taobao.com)
-3. [微博指数](https://data.weibo.com)
-4. [腾讯大数据](https://data.qq.com)
-5. [国家数据](http://data.stats.gov.cn)
-6. [国家统计局](http://www.stats.gov.cn)
-6. [联合国数据](http://data.un.org)
-7. [NASA数据](https://www.nasdaq.com)
-9. [世界银行数据](https://data.worldbank.org.cn)
-10. [艾瑞咨询](https://www.iresearch.com.cn)
-11. [麦肯锡](https://www.mckinsey.com.cn)
-12. [数据堂](https://datatang.com)
-13. [贵阳大数据](http://www.gbdex.com/website)
-14. [国家企业信用信息公示系统](http://www.gsxt.gov.cn/index.html)
-15. [谷歌学术](https://www.gugexueshu.com)
+### [xlwings](https://github.com/xlwings/xlwings) Excel Python 项目调用
+### [wechatpy](https://github.com/wechatpy/wechatpy) 微信开发包
+### [wxpy](https://wxpy.readthedocs.io/zh/latest/index.html) 微信聊天
 
 # markdown语法
 ![][foryou]

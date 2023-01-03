@@ -28,21 +28,6 @@ class YYPipeline(object):
         print('closed')
 
 
-class MongoDB_pipline(object):
-    def process_item(self, item, spider):
-        redis_cli = redis.Redis(host="127.0.0.1", port=6379, db="0")
-        mongo_cli = pymongo.MongoClient(host="127.0.0.1", port=27017)
-        dbname = mongo_cli["student"]
-        sheet_name = dbname["beijing"]
-        offset = 0
-        while True:
-            source, data = redis_cli.blpop("yy:items")
-            offset += 1
-            data = json.loads(data)
-            sheet_name.insert(data)
-            print(offset)
-
-
 class MySQL_pipline(object):
     def process_item(self, item, spider):
         redis_cli = redis.Redis(host="127.0.0.1", port=6379, db=0)
