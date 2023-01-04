@@ -216,6 +216,65 @@ echo $*
 echo "*** do something now ***"
 ```
 
+## 3. [利用公网IP做服务器局域网](https://cloud.tencent.com/developer/article/1832768)
+### 服务端
+```bash
+# 开启ipv4流量转发
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+sysctl -p
+# 创建并进入WireGuard文件夹
+mkdir -p /etc/wireguard && chmod 0777 /etc/wireguard && cd /etc/wireguard
+umask 077
+# 生成服务器和客户端密钥对
+wg genkey | tee server_privatekey | wg pubkey > server_publickey
+wg genkey | tee client_privatekey | wg pubkey > client_publickey
+echo "
+[Interface]
+PrivateKey = $(cat server_privatekey) # 填写本机的privatekey 内容
+Address = 10.10.10.0/24
+PostUp   = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+ListenPort = 50814 # 注意该端口是UDP端口
+DNS = 8.8.8.8
+MTU = 1420
+[Peer]
+PublicKey =  $(cat client_publickey)  # 填写客户端的publickey 内容
+AllowedIPs = 10.10.10.1/32 
+
+[Peer]
+PublicKey =  $(cat client_publickey)  # 填写客户端的publickey 内容
+AllowedIPs = 10.10.10.2/32 
+" > wg0.conf
+# 设置开机自启
+systemctl enable wg-quick@wg0
+wg-quick up wg0
+# wg-quick down wg0
+wg  # 查看WireGuard运行状态
+```
+
+### 客户端
+```bash
+yum install -y kmod-wireguard wireguard-tools
+# brew install -y wireguard-tools
+cd /etc/wireguard/
+wg genkey | tee privatekey | wg pubkey > client_publickey
+echo -e "[Interface]
+PrivateKey = $(cat privatekey)
+Address = 10.10.10.1/32
+
+[Peer]
+PublicKey = $(cat server_publickey)
+AllowedIPs = 10.10.10.0/24
+Endpoint = 公网IP:公网端口
+PersistentKeepalive = 30" > wg0.conf
+
+modprobe wireguard
+wg-quick down wg0
+wg-quick up wg0
+wg
+# 然后客户端与服务器就组成了局域网，局域网IP分别为10.10.10.0,10.10.10.1,10.10.10.2
+# 访问彼此的时候就可以使用局域网IP
+```
 
 # 六、命令
 ## 1. [awk](https://blog.csdn.net/u010502101/article/details/81839519)
