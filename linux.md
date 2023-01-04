@@ -611,7 +611,7 @@ fdisk -l|grep dev/sda
 # /dev/sda4   *         256    15204351     7602048    b  W95 FAT32
 # 可以看出这个U盘是FAT32类型
 mkdir /udisk
-mount -t vfat /dev/sdb4 /udisk 
+mount -t vfat /dev/sda4 /udisk 
 cd /udisk && ls -l
 ```
 
