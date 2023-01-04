@@ -604,6 +604,16 @@ printf  "\033[33m WARNING: hmm \033[0m\n";
 printf  "\033[31m ERROR: fubar \033[0m\n";
 mysql -h host -P 000 -u root -p 123456  -e"use test_database; source data_faile; " # -e 代表执行sql语句
 ```
+### 6. Linux挂载U盘
+```bash
+# 插上U盘之后
+fdisk -l|grep dev/sda
+# /dev/sda4   *         256    15204351     7602048    b  W95 FAT32
+# 可以看出这个U盘是FAT32类型
+mkdir /udisk
+mount -t vfat /dev/sdb4 /udisk 
+cd /udisk && ls -l
+```
 
 # 八、demo
 ```shell
