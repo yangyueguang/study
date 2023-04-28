@@ -28,6 +28,7 @@ RUN echo "export LC_ALL=zh_CN.UTF-8" >> ~/.bashrc
 RUN echo "alias ll='ls -l'" >> ~/.bashrc
 RUN pip install --upgrade pip Cython TA-Lib pandas
 RUN ln -s /usr/lib/python3.8/lib-dynload/_bz2.cpython-38-x86_64-linux-gnu.so /usr/local/python3/lib/python3.8/lib-dynload/  
+RUN cp /usr/lib/python3.8/lib-dynload/_sqlite3.cpython-38-x86_64-linux-gnu.so /usr/local/python3/lib/python3.8/lib-dynload/  
 RUN npm i yarn -g && npm i cnpm -g
 COPY setup.py setup.py
 COPY ctp.i ctp.i
