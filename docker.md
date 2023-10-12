@@ -1,5 +1,5 @@
 # DockerFile
-* ubuntu
+* ubuntu/base
 ```dockerfile
 FROM ubuntu:latest
 USER root
@@ -7,35 +7,34 @@ MAINTAINER xuechao 2829969299@qq.com
 ENV PYTHONUNBUFFERED 1
 ENV PATH=$PATH:/usr/node/bin
 RUN mkdir /app /root/.pip
+RUN echo "[global]" > ~/.pip/pip.conf
+RUN echo "index-url = http://mirrors.aliyun.com/pypi/simple/" >> ~/.pip/pip.conf
+RUN echo "[install]" >> ~/.pip/pip.conf
+RUN echo "trusted-host=mirrors.aliyun.com" >> ~/.pip/pip.conf
+RUN echo "export LC_ALL=zh_CN.UTF-8" >> ~/.bashrc
+RUN echo "alias ll='ls -l'" >> ~/.bashrc
 WORKDIR /app
 RUN apt update && apt install -y language-pack-zh-hans tzdata --no-install-recommends
 RUN rm -f /etc/localtime && ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
 RUN dpkg-reconfigure -f noninteractive tzdata
-RUN apt install -y gcc g++ swig wget unzip nginx git vim
+RUN apt install -y gcc g++ swig wget unzip nginx git vim dmidecode
 RUN apt install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
 RUN wget --no-cache https://nodejs.org/dist/v14.17.4/node-v14.17.4-linux-x64.tar.xz
 RUN tar -xvf node-v14.17.4-linux-x64.tar.xz && mv node-v14.17.4-linux-x64 /usr/node && rm -f node-v14.17.4-linux-x64.tar.xz
-RUN wget --no-cache https://www.python.org/ftp/python/3.8.15/Python-3.8.15.tgz && tar -xzvf Python-3.8.15.tgz
-RUN cd Python-3.8.15 && ./configure prefix=/usr/local/python3 && make && make install
-RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
-RUN tar -zxf ta-lib-0.4.0-src.tar.gz && cd ta-lib && ./configure --prefix=/usr && make && make install
+RUN wget --no-cache https://www.python.org/ftp/python/3.10.10/Python-3.10.10.tgz && tar -xzvf Python-3.10.10.tgz
+RUN cd Python-3.10.10 && ./configure prefix=/usr/local/python3 && make && make install
 RUN ln -s /usr/local/python3/bin/python3 /usr/bin/python && ln -s /usr/local/python3/bin/pip3 /usr/bin/pip
-RUN echo "[global]\
-    index-url = http://mirrors.aliyun.com/pypi/simple/ \
-    [install] \
-    trusted-host=mirrors.aliyun.com" > ~/.pip/pip.conf
-RUN echo "export LC_ALL=zh_CN.UTF-8" >> ~/.bashrc
-RUN echo "alias ll='ls -l'" >> ~/.bashrc
-RUN pip install --upgrade pip Cython TA-Lib pandas
-RUN ln -s /usr/lib/python3.8/lib-dynload/_bz2.cpython-38-x86_64-linux-gnu.so /usr/local/python3/lib/python3.8/lib-dynload/  
-RUN cp /usr/lib/python3.8/lib-dynload/_sqlite3.cpython-38-x86_64-linux-gnu.so /usr/local/python3/lib/python3.8/lib-dynload/  
+RUN cp /usr/lib/python3.10/lib-dynload/_sqlite3.cpython-310-x86_64-linux-gnu.so /usr/local/python3/lib/python3.10/lib-dynload/
+RUN pip install --upgrade pip Cython pandas
 RUN npm i yarn -g && npm i cnpm -g
 COPY setup.py setup.py
 COPY ctp.i ctp.i
+COPY require.txt require.txt
 RUN wget http://www.sfit.com.cn/DocumentDown/api_3/5_2_2/v6.6.9_traderapi_20220920.zip && unzip v6.6.9_traderapi_20220920.zip
 RUN mv v6.6.9_traderapi_20220920/v6.6.9_20220914_api_linux64/v6.6.9_20220914_api/v6.6.9_20220914_20220914_api_traderapi_se_linux64 ctp
 RUN mv ctp/thostmduserapi_se.so ctp/libthostmduserapi_se.so && mv ctp/thosttraderapi_se.so ctp/libthosttraderapi_se.so
 RUN swig -python -py3 -c++ -threads -I./ctp -o ctp_wrap.cpp ctp.i && python setup.py install
+RUN pip install -r require.txt
 RUN rm -rf /app && mkdir /app
 CMD /bin/bash
 ```
