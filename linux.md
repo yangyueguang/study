@@ -582,6 +582,7 @@ ssh 免密登录| ssh-copy-id remote_username@server_ip_address
 删除变量| unset name
 监控服务器内存状态|vmstat 2
 查看多核CPU运行情况|mpstat -P ALL
+ubuntu向外暴露端口|sudo ufw allow 80
 
 ### 5. 案例
 ```bash
