@@ -615,7 +615,25 @@ mkdir /udisk
 mount -t vfat /dev/sda4 /udisk 
 cd /udisk && ls -l
 ```
+### 7. nginx做socket代理
+```shell
+server {
+        listen       8000;
+        server_name  localhost;
 
+        location / {
+          proxy_pass http://xxxx:8000;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_read_timeout 86400s;
+       }
+    }
+```
 # 八、demo
 ```shell
 #!/bin/bash
