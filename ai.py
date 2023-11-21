@@ -22,6 +22,37 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.tree import DecisionTreeClassifier, ExtraTreeRegressor, DecisionTreeRegressor
 from sklearn.impute import SimpleImputer
 
+class HTTPServer(object):
+    def __init__(self):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind(('0.0.0.0', 8001))
+
+    def start(self):
+        self.socket.listen(128)
+        while True:
+            client_socket, client_address = self.socket.accept()
+            dlog(f'{client_address}用户连接上了')
+            handle_client_process = Process(target=self.handle_client, args=(client_socket,))
+            handle_client_process.start()
+            client_socket.close()
+
+    def handle_client(self, client_socket):
+        request_data = client_socket.recv(1024)
+        print("request data:", request_data)
+        client_socket.send(bytes(json.dumps({'code': 'd'}), "utf-8"))
+        client_socket.close()
+
+    def client_test(self):
+        http_server = HTTPServer()
+        http_server.start()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(("localhost", 8887))
+        sock.send(json.dumps({"symbol": "audusd@FXALL"}).encode('utf-8'))
+        while True:
+            res = sock.recv(1024)
+            print(res, '#######33')
+
 
 class ImageElement(xmind.core.mixin.WorkbookMixinElement):
     TAG_NAME = 'xhtml:img'
