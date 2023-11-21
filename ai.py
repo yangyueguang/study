@@ -22,6 +22,20 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.tree import DecisionTreeClassifier, ExtraTreeRegressor, DecisionTreeRegressor
 from sklearn.impute import SimpleImputer
 
+
+class AESSkyPay:
+    def __init__(self, key):
+        from Crypto.Cipher import AES
+        self.aes = AES.new(hashlib.sha1(bytes(key, 'utf8')).digest()[:16], AES.MODE_ECB)
+    
+    def encrypt(self, text):
+        b = text.encode()
+        ciphertext = self.aes.encrypt(b + (chr(11) * (16 - len(b) % 16)).encode())
+        return base64.b64encode(ciphertext).decode()
+    
+    def decrypt(self, text):
+        return self.aes.decrypt(base64.b64decode(text)).decode().rstrip()
+
 class HTTPServer(object):
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
