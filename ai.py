@@ -3,6 +3,8 @@ import pandas as pd
 from enum import Enum
 import xgboost as xgb
 import pickle
+import pika
+import xmind
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
@@ -19,6 +21,141 @@ from sklearn.model_selection import train_test_split, learning_curve, Stratified
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.tree import DecisionTreeClassifier, ExtraTreeRegressor, DecisionTreeRegressor
 from sklearn.impute import SimpleImputer
+
+
+class ImageElement(xmind.core.mixin.WorkbookMixinElement):
+    TAG_NAME = 'xhtml:img'
+
+    def __init__(self, name, node=None, ownerWorkbook=None):
+        super(ImageElement, self).__init__(node, ownerWorkbook)
+        self.setAttribute('align', 'left')
+        self.setAttribute('svg:height', '30')
+        self.setAttribute('svg:width', '30')
+        for i in os.listdir('markers'):
+            for j in os.listdir(f'markers/{i}'):
+                if name in j:
+                    self.setAttribute('xhtml:src', f'xap:markers/{i}/{j}')
+
+
+class Mind(object):
+    def __init__(self, name):
+        super(Mind, self).__init__()
+        self.name = name
+        self.content = []
+        self.is_zen = False
+        self.workbook = xmind.load(name)
+        if not os.path.exists(name):
+            return
+        with zipfile.ZipFile(name) as m:
+            if 'content.json' in m.namelist():
+                self.is_zen = True
+                d = m.open('content.json').read().decode('utf-8')
+                self.content = json.loads(d)
+
+    def save(self, name=None):
+        if not self.is_zen:
+            xmind.save(self.workbook, name or self.name)
+        else:
+            with zipfile.ZipFile(name or self.name, 'w') as x:
+                x.writestr('content.json', json.dumps(self.content, ensure_ascii=False, indent=3))
+                manifest = '{"file-entries":{"content.json":{},"metadata.json":{},"":{}}}'
+                metadata = '{"creator":{"name":"Vana","version":"10.1.1.202003310622"}}'
+                x.writestr('manifest.json', manifest)
+                x.writestr('metadata.json', metadata)
+
+    def parse_mm(self, name):
+        sheet = self.workbook.getPrimarySheet()
+        sheet.setTitle(Path(name).name)
+        topic = sheet.getRootTopic()
+        topic.setTitle('map')
+        topic = topic.addSubTopic()
+        topic.addMarker('mark')
+        topic.appendChild('icon')
+        topic.setTitle('title')
+        topic.setURLHyperlink('link')
+        self.save()
+
+        with zipfile.ZipFile(self.name, 'a') as f:
+            manifest = '''
+                <manifest xmlns="urn:xmind:xmap:xmlns:manifest:1.0" password-hint="">
+                    %s
+                    <file-entry full-path="markers/" media-type=""/>
+                    <file-entry full-path="content.xml" media-type="text/xml"/>
+                    <file-entry full-path="META-INF/" media-type=""/>
+                    <file-entry full-path="META-INF/manifest.xml" media-type="text/xml"/>
+                    <file-entry full-path="meta.xml" media-type="text/xml"/>
+                    <file-entry full-path="styles.xml" media-type="text/xml"/>
+                    <file-entry full-path="markers/markerSheet.xml" media-type="text/xml"/>
+                </manifest>
+                '''
+            marks = '<marker-sheet xmlns="urn:xmind:xmap:xmlns:marker:2.0" version="2.0"> %s </marker-sheet>'
+            manis = []
+            mars = []
+            for i in os.listdir('markers'):
+                mars.append(f'<marker-group id="{i}" name="{i}" singleton="true">')
+                for j in os.listdir('markers/' + i):
+                    icon_name = f'{i}/{j}'
+                    f.write(f'markers/{icon_name}')
+                    mars.append(f'<marker id="{j.split(".")[0]}" name="{j}" resource="{icon_name}"/>')
+                    manis.append(f'<file-entry full-path="markers/{icon_name}" media-type="image/{j.split(".")[-1].replace("jpg", "jpeg")}"/>')
+                mars.append(f'</marker-group>')
+
+            manifest = manifest % '\n'.join(manis)
+            marks = marks % '\n'.join(mars)
+            f.writestr('META-INF/manifest.xml', manifest)
+            f.writestr('markers/markerSheet.xml', marks)
+
+
+class MQConsumer(object):
+    def __init__(self):
+        credentials = pika.PlainCredentials("admin", "123456")
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq', port=5672, credentials=credentials))
+        self.channel = self.connection.channel()
+        self.channel.queue_declare(queue='api_queue')
+        self.channel.basic_qos(prefetch_count=1)
+        self.channel.basic_consume('api_queue', on_message_callback=self.callback)
+
+    def start_service(self):
+        self.channel.start_consuming()
+
+    def callback(self, channel, method, properties, body):
+        dlog('消费：{}'.format(body))
+        result = {"task": 'over'}
+        channel.basic_publish(
+            exchange='',
+            routing_key=properties.reply_to,
+            body=json.dumps(result).encode(),
+            properties=pika.BasicProperties(correlation_id=properties.correlation_id)
+        )
+        channel.basic_ack(delivery_tag=method.delivery_tag)
+
+
+class MQProducer(object):
+    def __init__(self):
+        credentials = pika.PlainCredentials("admin", "123456")
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq', port=5672, credentials=credentials))
+        self.channel = self.connection.channel()
+        self.channel.exchange_declare(exchange='api_ex', exchange_type='fanout')
+        self.channel.queue_declare(queue='api_queue')
+        self.channel.queue_bind(exchange='api_ex', queue='api_queue')
+        self.callbackQueue = self.channel.queue_declare(queue='', exclusive=False)
+        self.queueName = self.callbackQueue.method.queue
+        self.channel.basic_consume(on_message_callback=self.callback, auto_ack=False, queue=self.queueName)
+
+    def callback(self, channel, method, props, body):
+        if self.corr_id == props.correlation_id:
+            self.response = body
+
+    def call(self, requestStr):
+        dlog('生产：{}'.format(requestStr))
+        self.response = None
+        import uuid
+        self.corr_id = str(uuid.uuid4().hex)
+        properties = pika.BasicProperties(reply_to=self.queueName, correlation_id=self.corr_id)
+        self.channel.basic_publish(exchange='api_ex', routing_key='api_queue', body=requestStr, properties=properties)
+        while self.response is None:
+            self.connection.process_data_events()
+        return self.response
 
 
 class Estimat(Enum):
