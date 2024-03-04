@@ -533,7 +533,10 @@ umount -l /data
 echo "192.168.1.0:/data     /data                   nfs     defaults        0 0" >> /etc/fstab
 systemctl daemon-reload
 ```
-
+```
+ mount -t vfat /dev/sdb4 /udisk 
+ mount -t nfs 192.168.1.14:/volume2/centos /udisk -o nfsvers=3
+```
 ### 2. 使用虚拟环境安装python3
 ```bash
 pip install virtualenv 
