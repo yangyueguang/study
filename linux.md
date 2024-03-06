@@ -255,6 +255,7 @@ wg  # 查看WireGuard运行状态
 ### 客户端
 ```bash
 yum install -y kmod-wireguard wireguard-tools
+# apt install -y openresolv wireguard
 # brew install -y wireguard-tools
 cd /etc/wireguard/
 wg genkey | tee privatekey | wg pubkey > client_publickey
