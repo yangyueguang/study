@@ -960,3 +960,29 @@ function local_install_docker() {
     echo "docker installed successfully."
 }
 ```
+## 家居智能
+``` python
+import urequests
+from machine import Pin
+import time
+pin = Pin(2, Pin.in)
+pin2 = Pin(4, Pin.out)
+
+state = 0
+while 1:
+    s = pin.value()
+    if s!=state:
+        state = s
+        if s == 1:
+            pin2.ON()
+            urequests.get('http://localhost:8000/api/ping?state=' + s).json()
+            print('来人了')
+        else:
+            pin2.OFF()
+            urequests.get('http://localhost:8000/api/ping?state=' + s).json()
+            print('没有人')
+    time.sleep(1)
+
+
+
+```
