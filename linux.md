@@ -251,6 +251,27 @@ wg-quick up wg0
 # wg-quick down wg0
 wg  # 查看WireGuard运行状态
 ```
+### 开机启动命令
+脚本需要存放在/etc/systemd/system下面，对应的文件名为xxxxx.service，文件名可以自己定义但是要保证后缀为.service
+```
+[Unit]
+Description=Custom Service
+After=network.target
+[Service]
+ExecStart=/path/to/command_name
+
+[Install]
+WantedBy=default.target
+```
+把上述/path/to/command_name 替换成你要执行的命令
+chmod 755 /etc/systemd/system/xxxxx.service
+##### 设置开机自启动，这里的服务名就是 .service 前面的名称
+systemctl enable xxxxx
+##### 启动服务
+systemctl start xxxxx
+##### 我们可以看到服务当前的状态
+systemctl status xxxxx
+
 
 ### 客户端
 ```bash
