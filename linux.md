@@ -223,18 +223,21 @@ chmod 777 /data/share
 在/etc/samba/smb.conf文件末尾追加
 [home]
    comment = home guest share
-   path = /data/share                #指定共享路径
+   #指定共享路径 path对应的路径最后面不能有空格，就是/data/share后面不能有空格，要不然找不到正确的的路径连接不上
+   path = /data/share
    public = yes
    writable = yes
    guest ok = yes
    protocol_vers_map = 3
    directory mask = 0775        #默认创建目录的权限
    create mask = 0775           #默认创建文件的权限
-   valid user = root,xc        #允许访问共享路径的用户
-   write list  = root,xc       #允许写入共享路径的用户
+   valid user = root        #允许访问共享路径的用户
+   write list  = root       #允许写入共享路径的用户
    browseable = yes
    available = yes
-smbpasswd -a xc
+   read only = no
+
+smbpasswd -a root
 systemctl restart smbd
 systemctl enable smbd
 ufw allow samba
