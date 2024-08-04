@@ -234,7 +234,7 @@ chmod 777 /data/share
    write list  = root,xc       #允许写入共享路径的用户
    browseable = yes
    available = yes
-
+smbpasswd -a xc
 systemctl restart smbd
 systemctl enable smbd
 ufw allow samba
