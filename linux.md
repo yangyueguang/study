@@ -215,6 +215,34 @@ shift $((OPTIND-1))
 echo $*
 echo "*** do something now ***"
 ```
+## 2. ubuntu 启动samba服务
+```
+apt install samba
+mkdir /data/share
+在/etc/samba/smb.conf文件末尾追加
+[home]
+   comment = home guest share
+   path = /data/share                #指定共享路径
+   public = yes
+   writable = yes
+   guest ok = yes
+   protocol_vers_map = 3
+   directory mask = 0775        #默认创建目录的权限
+   create mask = 0775           #默认创建文件的权限
+   valid user = root,xc        #允许访问共享路径的用户
+   write list  = root,xc       #允许写入共享路径的用户
+   browseable = yes
+   available = yes
+
+systemctl restart smbd
+ufw allow samba
+
+```
+在mac或者windows直接用ip连接
+在linux
+```
+mount -t cifs //192.168.1.100/data/share /mnt -o username=xc
+```
 
 ## 3. [利用公网IP做服务器局域网](https://cloud.tencent.com/developer/article/1832768)
 ### 服务端
