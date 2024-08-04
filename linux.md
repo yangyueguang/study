@@ -219,6 +219,7 @@ echo "*** do something now ***"
 ```
 apt install samba
 mkdir /data/share
+chmod 777 /data/share
 在/etc/samba/smb.conf文件末尾追加
 [home]
    comment = home guest share
@@ -235,6 +236,7 @@ mkdir /data/share
    available = yes
 
 systemctl restart smbd
+systemctl enable smbd
 ufw allow samba
 
 ```
