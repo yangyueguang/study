@@ -698,3 +698,75 @@ pd.concat([df1, df1], axis=1)
 pd.concat([df1, ser1], axis=1)
 pd.concat([df1, ser1], axis=1, join='inner')
 df1.merge(df2, how='outer')
+
+class EastMoney(object):
+    def __init__(self, user='320400074792', pwd='xxxxxxxxx'):
+        self.user = user
+        self.pwd = pwd
+        self.token = None
+        self.domain = 'https://jywg.18.cn'
+        self.s = requests.Session()
+        self.s.verify = False
+
+    def auto_login(self):
+        if self.token and self.account():
+            print('already logined in')
+            return
+        import ddddocr
+        while True:
+            public_key = '-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHdsyxT66pDG4p73yope7jxA92\nc0AT4qIJ' \
+                         '/xtbBcHkFPK77upnsfDTJiVEuQDH+MiMeb+XhCLNKZGp0yaUU6GlxZdp\n+nLW8b7Kmijr3iepaDhcbVTsYBWchaWUXauj9Lrhz58' \
+                         '/6AE/NF0aMolxIGpsi+ST\n2hSHPu3GSXMdhPCkWQIDAQAB\n-----END PUBLIC KEY----- '
+            rsakey = RSA.importKey(public_key)
+            cipher = PKCS1_v1_5.new(rsakey)
+            cipher_text = base64.b64encode(cipher.encrypt(self.pwd.encode(encoding='utf-8')))
+            password = cipher_text.decode('utf8')
+            random_number = '0.305%d' % random.randint(100000, 900000)
+            req = self.s.get(f'{self.domain}/Login/YZM?randNum={random_number}')
+            identify_code = ddddocr.DdddOcr().classification(req.content)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/536.66',
+                'Host': 'jywg.18.cn', 'Pragma': 'no-cache', 'Connection': 'keep-alive', 'Accept': '*/*',
+                'Accept-Encoding': 'gzip, deflate, br', 'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7',
+                'Cache-Control': 'no-cache', 'Referer': 'https://jywg.18.cn/Login?el=1&clear=1', 'X-Requested-With': 'XMLHttpRequest',
+                'gw_reqtimestamp': str(int(round(time.time() * 1000))),
+                'content-type': 'application/x-www-form-urlencoded'
+            }
+            params = {
+                'duration': 1800, 'password': password, 'identifyCode': identify_code, 'type': 'Z', 'userId': self.user,
+                'randNumber': random_number, 'authCode': '', 'secInfo': ''
+            }
+            self.s.headers.update(headers)
+            login_res = self.s.post(f'{self.domain}/Login/Authentication', data=params).json()
+            if login_res['Status'] != 0:
+                print(login_res)
+                time.sleep(3)
+            else:
+                self.s.headers['cookie'] = '; '.join([f'{k}={v}' for k, v in self.s.cookies.get_dict().items()])  # 多余
+                break
+        content = self.s.get(f'{self.domain}/Trade/Buy').text
+        self.token = re.search('value="(.*?)"', content).group(1)
+
+    def account(self):
+        res = self.s.get(f'{self.domain}/Com/queryAssetAndPositionV1?validatekey={self.token}').json()
+        if res['Status'] == 0:
+            assets = res['Data'][0]
+            mps = {'Cbjg': 'buy', 'Ckyk': 'profit', 'Gddm': 'account', 'Kysl': 'cash', 'Ykbl': 'ykbl', 'Zjzh': 'uid', 'Zqdm': 'code', 'Zqmc': 'name','Zqsl': 'vol', 'Zxjg': 'price'}
+            return Dot({
+                'balance': float(assets['Zzc']),
+                'withDraw': float(assets['Kqzj']),
+                'cash': float(assets['Kyzj']),
+                'profit': float(assets['Ljyk']),
+                'market': float(assets['Zzc']) - float(assets['Kyzj']),
+                'positions': [{mps[k]: v for k, v in p.items() if k in mps} for p in assets['positions']]
+            })
+
+    def order(self, code, price=0, vol=0, buy=True):
+        if self.account().cash < price * vol and buy or vol <= 0:
+            print('没有足够的现金进行操作或数量不能为0')
+            return
+        params = {'stockCode': code, 'price': price, 'amount': vol, 'zqmc': 'unknown', 'tradeType': 'B' if buy else 'S'}
+        response = self.s.post(f'{self.domain}/Trade/SubmitTradeV2?validatekey={self.token}', data=params).json()
+        if response['Status'] == 0:
+            return response
+        print('下单失败, %s' % json.dumps(response, ensure_ascii=False))
