@@ -803,5 +803,5 @@ def crack_ssh(host):
                         print(msg)
                         return msg
                     except Exception as e:
-                        pass
+                        client.close()
     print('破解不了')
