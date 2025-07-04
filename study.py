@@ -805,3 +805,77 @@ def crack_ssh(host):
                     except Exception as e:
                         client.close()
     print('破解不了')
+
+
+
+    def AI(self, pipes='', codes='', n=3000, learn=1, depth=0, gbr=False, types=0, version=0, train=False, fix=False, m=1):
+        """ 机器学习 pipes特征工程处理流程 version版本 train训练/预测 fix用pct_change或Y\nreturn real, pred, res """
+        import os
+        import pickle
+        from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier
+        def tload(model=None, uid='', v=0, gbr=False):
+            name = f'/gbr_{uid}_{v}.pkl' if gbr else f'/xgb_{uid}_{v}.pkl'
+            if model:
+                with open(String.static + name, 'wb') as f:
+                    pickle.dump(model, f)
+            else:
+                if os.path.exists(String.static + name):
+                    with open(String.static + name, 'rb') as f:
+                        return pickle.load(f)
+
+        def tmodel(n=3000, learn=0.1, depth=0, gbr=False, types=0):
+            from xgboost import XGBRegressor, XGBClassifier
+            if gbr:
+                params = {'n_estimators': n, 'learning_rate': learn, 'max_depth': depth or 7, 'min_samples_split': 18,
+                          'min_samples_leaf': 25}
+            else:
+                params = {'n_estimators': n, 'learning_rate': learn, 'max_depth': depth or 10, 'gamma': 0.1,
+                          'colsample_bytree': 1, 'subsample': 0.7}
+            if types:
+                if gbr:
+                    return GradientBoostingClassifier(**params)
+                if types > 2:
+                    return XGBClassifier(**params, min_child_weight=2, num_class=types, objective='multi:softmax',
+                                         nthread=-1, scale_pos_weight=1)
+                return XGBClassifier(**params, min_child_weight=2, objective='binary:logistic', nthread=-1,
+                                     scale_pos_weight=1)
+            return GradientBoostingRegressor(**params) if gbr else XGBRegressor(**params)
+        ids = Index.objects.filter(name__in=[i.strip() for i in pipes.split(',')])
+        if train:
+            klines = Clickhouse.klines(codes or self.attrs['code'], self.attrs['start'], self.attrs['period'])
+            dfs = []
+            for c, d in klines.items():
+                df = d.this
+                for i in ids:
+                    i.func(df, **{arg['name']: arg['value'] for arg in i.args})
+                if not types:
+                    df['Y'] = df.close.pct_change(m).shift(-m) * 100 if fix else df.close.Y(m)
+                dfs.append(df.bfill()[100:-3 * m])
+            df = pd.concat(dfs, ignore_index=True)
+            model = tmodel(n, learn / 10, depth, gbr, types)
+            model.fit(df.drop(['vol', 'money', 'Y'], axis=1), df['Y'])
+            model.attrs = {'pipes': pipes, 'codes': codes, 'n': n, 'learn': learn / 10, 'depth': depth, 'gbr': gbr, 'types': types, 'version': version, 'fix': fix, 'm': m}
+            tload(model, self.attrs['uid'], version, gbr)
+        else:
+            model = tload(None, self.attrs['uid'], version, gbr)
+            if model:
+                m = model.attrs['m']
+                pipes = [i.strip() for i in model.attrs['pipes'].split(',')]
+                for i in Index.objects.filter(name__in=pipes):
+                    i.func(self, **{arg['name']: arg['value'] for arg in i.args})
+                pred = pd.Series(model.predict(self[model.feature_names_in_].bfill().ffill().fillna(0)), index=self.index)
+                real = self.Y if not types else self.close.pct_change(m).shift(-m) * 100 if model.attrs.get('fix') else self.close.Y(m)
+                res = pred[100:-3 * m]
+                r = real[100:-3 * m].this
+                if types:
+                    result = r.matrix(res).set_index('index')
+                    result.loc['因子'] = '|'.join(model.feature_names_in_)
+                    for k, v in model.attrs.items():
+                        result.loc[k] = v
+                    result.reset_index(inplace=True)
+                else:
+                    result = {
+                        'score': round(r.dc(res), 3), 'ic': round(r.ic(res), 3), 'corr': round(r.corr(res), 3),
+                        'mutual': round(r.mutual(res), 3), 'std': round((r - res).std(), 3), 'win%': round(sum(r * res > 0) / len(r) * 100, 2),
+                        **model.attrs, 'pipes': pipes, '因子': model.feature_names_in_, '权重': model.feature_importances_ * 100}
+                return real, pred, result
